@@ -13,7 +13,9 @@ val RED : index
 val GREEN : index
 val BLUE : index
 
-val get_dna_val : moth_dna -> index -> real
+val get : moth_dna -> index -> real
+
+val random : unit -> moth_dna
 
 val moth1 : moth_dna
 val moth2 : moth_dna

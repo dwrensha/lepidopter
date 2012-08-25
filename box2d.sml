@@ -26,18 +26,21 @@ struct
                            data = data,
                            inertia_scale = 1.0
                          })
-          val red = DNA.get_dna_val dna DNA.RED
-          val green = DNA.get_dna_val dna DNA.GREEN
-          val blue = DNA.get_dna_val dna DNA.BLUE
+          val red = DNA.get dna DNA.RED
+          val green = DNA.get dna DNA.GREEN
+          val blue = DNA.get dna DNA.BLUE
           val color = RGB (red, green, blue)
+
+          val wing_width = (DNA.get dna DNA.WINGSPAN) / 2.0
+          val half_height = (DNA.get dna DNA.HEIGHT) / 2.0
 
           val fixture = BDD.Body.create_fixture_default
                             (body,
                              BDDShape.Polygon
                                  (BDDPolygon.polygon
                                       [BDDMath.vec2 (0.0, 0.0),
-                                       BDDMath.vec2 (0.4, ~0.2),
-                                       BDDMath.vec2 (0.4, 0.2)]
+                                       BDDMath.vec2 (wing_width, ~half_height),
+                                       BDDMath.vec2 (wing_width, half_height)]
                                  ),
                              Fix {color = color},
                              10.0)
@@ -48,14 +51,15 @@ struct
                              BDDShape.Polygon
                                  (BDDPolygon.polygon
                                       [BDDMath.vec2 (0.0, 0.0),
-                                       BDDMath.vec2 (~0.4, 0.2),
-                                       BDDMath.vec2 (~0.4, ~0.2)]
+                                       BDDMath.vec2 (~wing_width, half_height),
+                                       BDDMath.vec2 (~wing_width, ~half_height)]
                                  ),
                              Fix {color = color},
                              10.0)
           val () = BDD.Fixture.set_restitution (fixture, 1.0)
           val () = BDD.Fixture.set_friction (fixture, 0.1)
       in () end
+
     | create_body world (p : BDDMath.vec2) (data as Block ()) : unit = 
       let 
           val body = BDD.World.create_body

@@ -5,6 +5,10 @@ opengl/GL.cm
 opengl/GLU.cm
 sml-lib/bdd/bdd.cm
 
+sml-lib/crypt/mersenne-twister-sig.sml
+sml-lib/crypt/mersenne-twister.sml
+
+
 dna-sig.sml
 dna.sml
 types.sml

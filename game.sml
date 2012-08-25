@@ -30,8 +30,20 @@ struct
           val () = Box2d.create_body world
                                      (BDDMath.vec2 (10.0, 17.0))
                                      (Moth {health = ref 1.0,
-                                            goal = ref (BDDMath.vec2 (16.0, 16.0)),
+                                            goal = ref (BDDMath.vec2 (15.0, 15.0)),
                                             dna = DNA.moth2 })
+
+          val () = Box2d.create_body world
+                                     (BDDMath.vec2 (1.0, 7.0))
+                                     (Moth {health = ref 1.0,
+                                            goal = ref (BDDMath.vec2 (15.0, 15.0)),
+                                            dna = DNA.random () })
+
+          val () = Box2d.create_body world
+                                     (BDDMath.vec2 (7.0, 4.0))
+                                     (Moth {health = ref 1.0,
+                                            goal = ref (BDDMath.vec2 (15.4, 15.3)),
+                                            dna = DNA.random () })
 
           val () = Box2d.create_body world (BDDMath.vec2 (15.0, 15.0)) (Block ())
       in world end
