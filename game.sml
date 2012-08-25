@@ -48,6 +48,16 @@ struct
 
           val () = Box2d.create_body world (BDDMath.vec2 (15.0, 15.0)) (Block ())
           val () = BDD.World.set_begin_contact (world, Box2d.contact_listener)
+
+          fun random_vec () = Box2d.random_vec 0.0 20.0 0.0 20.0
+          val () = Util.for 1 50
+                            (fn i =>
+                                Box2d.create_body world
+                                                  (random_vec ())
+                                                  (Moth {health = ref 1.0,
+                                                         goal = ref (random_vec()),
+                                                         dna = DNA.random () })
+                            )
       in world end
 
 

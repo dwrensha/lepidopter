@@ -1,11 +1,11 @@
-OUTPUT_APP=Awesome
+OUTPUT_APP=LepidopterAttack
 ICON=media/graphics/ExplatTheRobot.icns
 OUTPUT_EXE=game.exe
 MAKE=make
 
 # You shouldn't have to edit anything below this line
 
-VERSION_TARGET=10.2
+VERSION_TARGET=10.6
 FRAMEWORKS=functioning/OSX/Frameworks
 CPPFLAGS=-I/usr/local/include -I${FRAMEWORKS}/SDL.framework/Versions/Current/Headers -I${FRAMEWORKS}/SDL_net.framework/Versions/Current/Headers -I${FRAMEWORKS}/SDL_mixer.framework/Versions/Current/Headers -I${FRAMEWORKS}/SDL_image.framework/Versions/Current/Headers -D_THREAD_SAFE -DOSX
 LIBS=-L/usr/lib

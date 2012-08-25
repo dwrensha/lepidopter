@@ -91,6 +91,17 @@ struct
       in () end
 
 
+  val mt =
+      MersenneTwister.initstring (Time.toString (Time.now ()))
+
+  fun random_vec left right bottom top =
+      let open MersenneTwister
+          val x = (Real.fromInt (random_nat mt 1000)) / 1000.0
+          val y = (Real.fromInt (random_nat mt 1000)) / 1000.0
+      in BDDMath.vec2
+             (x * (right - left) + left,
+              y * (top - bottom) + bottom)
+      end
 
   fun take_hit (Moth {health, ...}) = 
       (health := ((!health) - 0.03);
