@@ -101,7 +101,9 @@ struct
               val glpoints = List.map (fn (x, y) => (x, y, 0.0)) glpoints0
               val Fix {color, health = ref h} = BDD.Fixture.get_data f
           in Opengl.DrawPrim (prim,
-                              [(scalecolor color h, glpoints)])
+                              [(scalecolor color h, glpoints)]);
+             Opengl.DrawPrim (GL_LINE_LOOP,
+                              [(RGB (0.5, 0.5, 0.5), glpoints)])
           end
 
   fun drawbody screen b = 
