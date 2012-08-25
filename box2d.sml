@@ -7,7 +7,7 @@ struct
 
   val zero = BDDMath.vec2 (0.0, 0.0) 
 
-  fun create_moth world (p : BDDMath.vec2) data : unit = 
+  fun create_body world (p : BDDMath.vec2) (data as Moth {dna, ...}) : unit = 
       let 
           val body = BDD.World.create_body
                          (world,
@@ -26,14 +26,10 @@ struct
                            data = data,
                            inertia_scale = 1.0
                          })
-          val color = (case data of
-                          Moth {dna, ...} =>
-                          let val red = DNA.get_dna_val dna DNA.RED
-                              val green = DNA.get_dna_val dna DNA.GREEN
-                              val blue = DNA.get_dna_val dna DNA.BLUE
-                          in RGB (red, green, blue) end
-                        | _ => RGB (0.0, 1.0, 1.0)
-                      )
+          val red = DNA.get_dna_val dna DNA.RED
+          val green = DNA.get_dna_val dna DNA.GREEN
+          val blue = DNA.get_dna_val dna DNA.BLUE
+          val color = RGB (red, green, blue)
 
           val fixture = BDD.Body.create_fixture_default
                             (body,
@@ -60,8 +56,7 @@ struct
           val () = BDD.Fixture.set_restitution (fixture, 1.0)
           val () = BDD.Fixture.set_friction (fixture, 0.1)
       in () end
-
-  fun create_block world (p : BDDMath.vec2) data : unit = 
+    | create_body world (p : BDDMath.vec2) (data as Block ()) : unit = 
       let 
           val body = BDD.World.create_body
                          (world,

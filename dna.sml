@@ -27,7 +27,7 @@ fun get_dna_val dna idx =
     end
 
 
-val moth1 = Array.fromList [0.2, 0.3, 0.5, 1.0, 0.9, 0.8, 0.4]
-val moth2 = Array.fromList [0.1, 0.3, 0.4, 0.9, 0.3, 0.9, 0.99]
+val moth1 = Array.fromList [0.2, 0.3, 0.5, 1.0, 0.9, 0.8, 0.1]
+val moth2 = Array.fromList [0.1, 0.3, 0.4, 0.9, 0.0, 0.9, 0.99]
 
 end

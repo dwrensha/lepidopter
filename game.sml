@@ -22,18 +22,18 @@ struct
   val gravity = BDDMath.vec2 (0.0, ~1.0) 
   val initstate =
       let val world = BDD.World.world (gravity, true)
-          val () = Box2d.create_moth world
+          val () = Box2d.create_body world
                                      (BDDMath.vec2 (10.0, 10.0))
                                      (Moth {health = ref 1.0,
                                             goal = ref (BDDMath.vec2 (15.0, 15.0)),
                                             dna = DNA.moth1 })
-          val () = Box2d.create_moth world
+          val () = Box2d.create_body world
                                      (BDDMath.vec2 (10.0, 17.0))
                                      (Moth {health = ref 1.0,
                                             goal = ref (BDDMath.vec2 (16.0, 16.0)),
                                             dna = DNA.moth2 })
 
-          val () = Box2d.create_block world (BDDMath.vec2 (15.0, 15.0)) (Block ())
+          val () = Box2d.create_body world (BDDMath.vec2 (15.0, 15.0)) (Block ())
       in world end
 
 
