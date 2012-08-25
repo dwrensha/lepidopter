@@ -2,8 +2,6 @@ structure Game :> GAME =
 struct
   open Types
 
-  val gravity = BDDMath.vec2 (0.0, ~1.0) 
-  val world = BDD.World.world (gravity, true)
 
   open GL
 
@@ -12,18 +10,8 @@ struct
   infix 6 :+: :-: %-% %+% +++
   infix 7 *: *% +*: +*+ #*% @*:
 
-  val () = Box2d.create_moth world
-                             (BDDMath.vec2 (10.0, 10.0))
-                             (Moth {health = ref 1.0,
-                                    goal = ref (BDDMath.vec2 (15.0, 15.0))})
-  val () = Box2d.create_moth world
-                             (BDDMath.vec2 (10.0, 17.0))
-                             (Moth {health = ref 1.0,
-                                    goal = ref (BDDMath.vec2 (16.0, 16.0))})
 
-  val () = Box2d.create_block world (BDDMath.vec2 (15.0, 15.0)) (Block ())
-
-  type state = unit
+  type state = BDD.world
   type screen = SDL.surface
 
   (* Constant parameters *)
@@ -31,7 +19,21 @@ struct
   val height = 500
   val use_gl = true
   
-  val initstate = ()
+  val gravity = BDDMath.vec2 (0.0, ~1.0) 
+  val initstate =
+      let val world = BDD.World.world (gravity, true)
+          val () = Box2d.create_moth world
+                                     (BDDMath.vec2 (10.0, 10.0))
+                                     (Moth {health = ref 1.0,
+                                            goal = ref (BDDMath.vec2 (15.0, 15.0))})
+          val () = Box2d.create_moth world
+                                     (BDDMath.vec2 (10.0, 17.0))
+                                     (Moth {health = ref 1.0,
+                                            goal = ref (BDDMath.vec2 (16.0, 16.0))})
+
+          val () = Box2d.create_block world (BDDMath.vec2 (15.0, 15.0)) (Block ())
+      in world end
+
 
   fun initscreen screen = Opengl.init width height
 
@@ -47,7 +49,7 @@ struct
           in () end
         | _ => ()
 
-  fun dophysics () = 
+  fun dophysics world = 
       let val timestep = 1.0 / ticks_per_second
           val () = BDD.World.step (world, timestep, 10, 10)
       in () end
@@ -82,7 +84,7 @@ struct
              BDDOps.oapp BDD.Fixture.get_next (drawfixture screen pos theta) fl
       end
 
-  fun render screen () =
+  fun render screen world =
   let in
       glClear(GL_COLOR_BUFFER_BIT + GL_DEPTH_BUFFER_BIT);
       glLoadIdentity();
@@ -103,14 +105,14 @@ struct
 
 
 
-  fun tick s =
+  fun tick world =
       let
       in
           oapp BDD.Body.get_next
                domothbrain
                (BDD.World.get_body_list world);
-          dophysics (); 
-          SOME s
+          dophysics world; 
+          SOME world
       end
 end
 
