@@ -25,11 +25,13 @@ struct
           val () = Box2d.create_moth world
                                      (BDDMath.vec2 (10.0, 10.0))
                                      (Moth {health = ref 1.0,
-                                            goal = ref (BDDMath.vec2 (15.0, 15.0))})
+                                            goal = ref (BDDMath.vec2 (15.0, 15.0)),
+                                            dna = Array.array (5, 1.0) })
           val () = Box2d.create_moth world
                                      (BDDMath.vec2 (10.0, 17.0))
                                      (Moth {health = ref 1.0,
-                                            goal = ref (BDDMath.vec2 (16.0, 16.0))})
+                                            goal = ref (BDDMath.vec2 (16.0, 16.0)),
+                                            dna = Array.array (5, 1.0) })
 
           val () = Box2d.create_block world (BDDMath.vec2 (15.0, 15.0)) (Block ())
       in world end
@@ -41,7 +43,7 @@ struct
 
   fun domothbrain b = 
       case BDD.Body.get_data b of
-          (Moth {health, goal = ref gl}) =>
+          (Moth {health, goal = ref gl, dna = _}) =>
           let val pos = BDD.Body.get_position b
               val gdir = BDDMath.vec2normalized (gl :-: pos)
               val force = 5.5 *: gdir
@@ -101,8 +103,6 @@ struct
   fun handle_event (SDL.E_KeyDown {sym = k}) s = keyDown k s
     | handle_event SDL.E_Quit s = NONE
     | handle_event _ s = SOME s
-
-
 
 
   fun tick world =
