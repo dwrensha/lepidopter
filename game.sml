@@ -16,14 +16,12 @@ struct
                              (BDDMath.vec2 (10.0, 10.0))
                              (Moth {health = ref 1.0,
                                     goal = ref (BDDMath.vec2 (15.0, 15.0))})
-
   val () = Box2d.create_moth world
                              (BDDMath.vec2 (10.0, 17.0))
                              (Moth {health = ref 1.0,
                                     goal = ref (BDDMath.vec2 (16.0, 16.0))})
 
   val () = Box2d.create_block world (BDDMath.vec2 (15.0, 15.0)) (Block ())
-
 
   type state = unit
   type screen = SDL.surface
@@ -52,10 +50,6 @@ struct
   fun dophysics () = 
       let val timestep = 1.0 / ticks_per_second
           val () = BDD.World.step (world, timestep, 10, 10)
- (* For some reason, FLAG_CLEAR_FORCES gets reset to false
-    whenever I create an object.
-    TODO track this down. is it a bug?*)
-          val () = BDD.World.clear_forces world
       in () end
 
 
