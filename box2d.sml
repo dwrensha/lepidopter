@@ -26,6 +26,14 @@ struct
                            data = data,
                            inertia_scale = 1.0
                          })
+          val color = (case data of
+                          Moth {dna, ...} =>
+                          let val red = DNA.get_dna_val dna DNA.RED
+                              val green = DNA.get_dna_val dna DNA.GREEN
+                              val blue = DNA.get_dna_val dna DNA.BLUE
+                          in RGB (red, green, blue) end
+                        | _ => RGB (0.0, 1.0, 1.0)
+                      )
 
           val fixture = BDD.Body.create_fixture_default
                             (body,
@@ -35,7 +43,7 @@ struct
                                        BDDMath.vec2 (0.4, ~0.2),
                                        BDDMath.vec2 (0.4, 0.2)]
                                  ),
-                             (),
+                             Fix {color = color},
                              10.0)
           val () = BDD.Fixture.set_restitution (fixture, 0.2)
           val () = BDD.Fixture.set_friction (fixture, 0.0)
@@ -47,7 +55,7 @@ struct
                                        BDDMath.vec2 (~0.4, 0.2),
                                        BDDMath.vec2 (~0.4, ~0.2)]
                                  ),
-                             (),
+                             Fix {color = color},
                              10.0)
           val () = BDD.Fixture.set_restitution (fixture, 1.0)
           val () = BDD.Fixture.set_friction (fixture, 0.1)
@@ -77,7 +85,7 @@ struct
                             (body,
                              BDDShape.Polygon
                                  (BDDPolygon.box (0.3, 0.3)),
-                             (),
+                             Fix {color = RGB (0.0, 1.0, 1.0)},
                              100.0)
           val () = BDD.Fixture.set_restitution (fixture, 1.0)
           val () = BDD.Fixture.set_friction (fixture, 0.4)

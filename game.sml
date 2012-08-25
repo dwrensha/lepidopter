@@ -71,8 +71,9 @@ struct
               val tf = BDDMath.mat22angle theta
               val glpoints0 = List.map (fn pt => BDDMath.vec2xy (pos :+: (tf +*: pt))) points
               val glpoints = List.map (fn (x, y) => (x, y, 0.0)) glpoints0
+              val Fix {color} = BDD.Fixture.get_data f
           in Opengl.DrawPrim (prim,
-                              [(RGB (0.0, 1.0, 1.0), glpoints)])
+                              [(color, glpoints)])
           end
 
   fun drawbody screen b = 

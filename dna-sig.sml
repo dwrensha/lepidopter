@@ -5,13 +5,13 @@ type moth_dna
 
 type index
 
-val DNA_WINGSPAN : index
-val DNA_HEIGHT : index
-val DNA_DENSITY : index
-val DNA_FORCE : index
-val DNA_RED : index
-val DNA_GREEN : index
-val DNA_BLUE : index
+val WINGSPAN : index
+val HEIGHT : index
+val DENSITY : index
+val FORCE : index
+val RED : index
+val GREEN : index
+val BLUE : index
 
 val get_dna_val : moth_dna -> index -> real
 
