@@ -1,15 +1,10 @@
 structure Game :> GAME =
 struct
   open Types
-
-
   open GL
-
-
   open BDDOps
   infix 6 :+: :-: %-% %+% +++
   infix 7 *: *% +*: +*+ #*% @*:
-
 
   type state = BDD.world
   type screen = SDL.surface
@@ -45,7 +40,14 @@ struct
                                             goal = ref (BDDMath.vec2 (15.4, 15.3)),
                                             dna = DNA.random () })
 
+          val () = Box2d.create_body world
+                                     (BDDMath.vec2 (11.0, 9.0))
+                                     (Moth {health = ref 1.0,
+                                            goal = ref (BDDMath.vec2 (15.2, 15.1)),
+                                            dna = DNA.random () })
+
           val () = Box2d.create_body world (BDDMath.vec2 (15.0, 15.0)) (Block ())
+          val () = BDD.World.set_begin_contact (world, Box2d.contact_listener)
       in world end
 
 
@@ -55,10 +57,11 @@ struct
 
   fun domothbrain b = 
       case BDD.Body.get_data b of
-          (Moth {health, goal = ref gl, dna = _}) =>
+          (Moth {health = ref health, goal = ref gl, dna}) =>
           let val pos = BDD.Body.get_position b
               val gdir = BDDMath.vec2normalized (gl :-: pos)
-              val force = 5.5 *: gdir
+              val mforce = DNA.get dna DNA.FORCE
+              val force = (health * mforce) *: gdir
               val () = BDD.Body.apply_force (b, force, pos)
           in () end
         | _ => ()
@@ -68,6 +71,9 @@ struct
           val () = BDD.World.step (world, timestep, 10, 10)
       in () end
 
+  fun scalecolor (RGB (r, g, b)) health = 
+      let val s = 0.8 * health + 0.2
+      in RGB (s * r, s * g, s * b) end
 
   fun drawfixture screen pos theta f =
       case BDD.Fixture.shape f of
@@ -83,9 +89,9 @@ struct
               val tf = BDDMath.mat22angle theta
               val glpoints0 = List.map (fn pt => BDDMath.vec2xy (pos :+: (tf +*: pt))) points
               val glpoints = List.map (fn (x, y) => (x, y, 0.0)) glpoints0
-              val Fix {color} = BDD.Fixture.get_data f
+              val Fix {color, health = ref h} = BDD.Fixture.get_data f
           in Opengl.DrawPrim (prim,
-                              [(color, glpoints)])
+                              [(scalecolor color h, glpoints)])
           end
 
   fun drawbody screen b = 

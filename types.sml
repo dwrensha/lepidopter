@@ -10,7 +10,8 @@ datatype body_data = Moth of {health : real ref,
                               }
                    | Block of unit
 
-datatype fixture_data = Fix of {color : spec}
+datatype fixture_data = Fix of {health: real ref,
+                                color : spec}
 
 structure BDD = BDDWorld( 
                 struct type fixture_data = fixture_data

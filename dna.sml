@@ -15,8 +15,8 @@ val RED = 4
 val GREEN = 5
 val BLUE = 6
 
-val dna_mins = Array.fromList [0.1, 0.1, 0.1, 0.1, 0.3, 0.3, 0.3]
-val dna_maxs = Array.fromList [0.6, 0.5, 0.9, 2.0, 1.0, 1.0, 1.0]
+val dna_mins = Array.fromList [0.1, 0.1, 0.1, 2.0, 0.3, 0.3, 0.3]
+val dna_maxs = Array.fromList [0.6, 0.5, 0.9, 7.0, 1.0, 1.0, 1.0]
 
 fun get dna idx =
     let val mn = Array.sub (dna_mins, idx)

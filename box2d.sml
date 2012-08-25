@@ -7,7 +7,7 @@ struct
 
   val zero = BDDMath.vec2 (0.0, 0.0) 
 
-  fun create_body world (p : BDDMath.vec2) (data as Moth {dna, ...}) : unit = 
+  fun create_body world (p : BDDMath.vec2) (data as Moth {dna, health, ...}) : unit = 
       let 
           val body = BDD.World.create_body
                          (world,
@@ -17,7 +17,7 @@ struct
                            linear_velocity = zero,
                            angular_velocity = 0.0,
                            linear_damping = 0.5,
-                           angular_damping = 0.5,
+                           angular_damping = 1.0,
                            allow_sleep = true,
                            awake = true,
                            fixed_rotation = false,
@@ -42,7 +42,7 @@ struct
                                        BDDMath.vec2 (wing_width, ~half_height),
                                        BDDMath.vec2 (wing_width, half_height)]
                                  ),
-                             Fix {color = color},
+                             Fix {color = color, health = health},
                              10.0)
           val () = BDD.Fixture.set_restitution (fixture, 0.2)
           val () = BDD.Fixture.set_friction (fixture, 0.0)
@@ -54,7 +54,7 @@ struct
                                        BDDMath.vec2 (~wing_width, half_height),
                                        BDDMath.vec2 (~wing_width, ~half_height)]
                                  ),
-                             Fix {color = color},
+                             Fix {color = color, health = health},
                              10.0)
           val () = BDD.Fixture.set_restitution (fixture, 1.0)
           val () = BDD.Fixture.set_friction (fixture, 0.1)
@@ -84,13 +84,27 @@ struct
                             (body,
                              BDDShape.Polygon
                                  (BDDPolygon.box (0.3, 0.3)),
-                             Fix {color = RGB (0.0, 1.0, 1.0)},
+                             Fix {color = RGB (0.0, 1.0, 1.0), health = ref 1.0},
                              100.0)
           val () = BDD.Fixture.set_restitution (fixture, 1.0)
           val () = BDD.Fixture.set_friction (fixture, 0.4)
       in () end
 
 
+
+  fun take_hit (Moth {health, ...}) = 
+      (health := ((!health) - 0.03);
+       if !health < 0.0 then health := 0.0 else ()
+      )
+    | take_hit _ = ()
+
+  fun contact_listener c = 
+      let
+          val (fa, fb) = BDD.Contact.get_fixtures c
+          val bda = BDD.Body.get_data (BDD.Fixture.get_body fa)
+          val bdb = BDD.Body.get_data (BDD.Fixture.get_body fb)
+          val () = (take_hit bda; take_hit bdb)
+      in () end
 
 
 end
