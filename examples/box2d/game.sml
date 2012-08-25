@@ -226,52 +226,39 @@ struct
 
   val ticks_per_second = 60.0
 
-  val lasttime = ref (Time.now ())
-
   fun dophysics () = 
-      let val now = Time.now ()
-          val diff = Time.-(now, !lasttime)
-          val () = lasttime := now
-          val millis = IntInf.toString (Time.toMilliseconds (diff))
-          val () = B.World.step (world, 1.0 / ticks_per_second,
-                                 10, 10)
+      let val timestep = 1.0 / ticks_per_second
+          val () = B.World.step (world, timestep, 10, 10)
       in () end
       
 
   val white = SDL.color (0w255,0w255,0w255,0w0);
 
-  fun drawbodies screen bl = 
-      ( case bl of
-            SOME b =>
-            let 
-                val p = B.Body.get_position b
-                val (x, y) = worldToScreen p
-                val () =
-                    (case B.Body.get_data b of
-                         Text {text, width, height} => 
-                         let val (x0, y0) = (x - (width div 2),
-                                             y - (height div 2)) 
-                         in Font.Normal.draw (screen, x0, y0, text) 
-                         end 
-                       | VerticalLine h =>
-                         let val y0 = y - (h div 2)
-                             val y1 = y + (h div 2)
-                             val () = SDL.drawline (screen, x, y0, x, y1, white)
-                         in () end
-                       | HorizontalLine w =>
-                         let val x0 = x - (w div 2)
-                             val x1 = x + (w div 2)
-                             val () = SDL.drawline (screen, x0, y, x1, y, white)
-                         in () end
-                    )
-            in drawbodies screen (B.Body.get_next b) end
-          | NONE => ()
-      )
+  fun drawbody screen b = 
+      let val p = B.Body.get_position b
+          val (x, y) = worldToScreen p
+      in case B.Body.get_data b of
+             Text {text, width, height} => 
+             let val (x0, y0) = (x - (width div 2),
+                                 y - (height div 2)) 
+             in Font.Normal.draw (screen, x0, y0, text) 
+             end 
+           | VerticalLine h =>
+             let val y0 = y - (h div 2)
+                 val y1 = y + (h div 2)
+                 val () = SDL.drawline (screen, x, y0, x, y1, white)
+             in () end
+           | HorizontalLine w =>
+             let val x0 = x - (w div 2)
+                 val x1 = x + (w div 2)
+                 val () = SDL.drawline (screen, x0, y, x1, y, white)
+             in () end
+      end
 
   fun render screen () =
   (
     SDL.clearsurface (screen, SDL.color (0w0,0w0,0w0,0w0));
-    drawbodies screen (B.World.get_body_list world);
+    BDDOps.oapp B.Body.get_next (drawbody screen) (B.World.get_body_list world);
     SDL.flip screen
   )
 

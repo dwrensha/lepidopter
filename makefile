@@ -1,4 +1,4 @@
-OUTPUT_APP=Awesome
+OUTPUT_APP=LepidopterAttack
 ICON=media/graphics/ExplatTheRobot.icns
 OUTPUT_EXE=game.exe
 MAKE=make
