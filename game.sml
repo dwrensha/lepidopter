@@ -12,9 +12,12 @@ struct
   infix 6 :+: :-: %-% %+% +++
   infix 7 *: *% +*: +*+ #*% @*:
 
-  val () = Box2d.create_moth (BDDMath.vec2 (10.0, 10.0)) world
+  val () = Box2d.create_moth world
+                             (BDDMath.vec2 (10.0, 10.0))
+                             (Moth {health = ref 1.0,
+                                    goal = ref (15.0, 15.0)})
 
-  val () = Box2d.create_block (BDDMath.vec2 (9.8, 9.0)) world
+  val () = Box2d.create_block world (BDDMath.vec2 (9.8, 9.0)) (Block ())
 
 
   type state = unit
@@ -31,9 +34,16 @@ struct
 
   val ticks_per_second = 60.0
 
+  fun domothbrain (Moth {...}) = ()
+    | domothbrain _ = ()
+
   fun dophysics () = 
       let val timestep = 1.0 / ticks_per_second
           val () = BDD.World.step (world, timestep, 10, 10)
+ (* For some reason, FLAG_CLEAR_FORCES gets reset to false
+    whenever I create an object.
+    TODO track this down. is it a bug?*)
+          val () = BDD.World.clear_forces world
       in () end
 
 
@@ -86,11 +96,11 @@ struct
 
 
   fun tick s =
-    let
-    in
+      ( oapp BDD.Body.get_next (domothbrain o BDD.Body.get_data) 
+             (BDD.World.get_body_list world);
         dophysics(); 
         SOME s
-    end
+      )
 end
 
 structure Main =

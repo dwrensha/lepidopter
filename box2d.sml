@@ -7,7 +7,7 @@ struct
 
   val zero = BDDMath.vec2 (0.0, 0.0) 
 
-  fun create_moth (p : BDDMath.vec2) world : unit = 
+  fun create_moth world (p : BDDMath.vec2) data : unit = 
       let 
           val body = BDD.World.create_body
                          (world,
@@ -23,7 +23,7 @@ struct
                            fixed_rotation = false,
                            bullet = false,
                            active = true,
-                           data = Moth 1.0,
+                           data = data,
                            inertia_scale = 1.0
                          })
 
@@ -53,7 +53,7 @@ struct
           val () = BDD.Fixture.set_friction (fixture, 0.1)
       in () end
 
-  fun create_block (p : BDDMath.vec2) world : unit = 
+  fun create_block world (p : BDDMath.vec2) data : unit = 
       let 
           val body = BDD.World.create_body
                          (world,
@@ -69,7 +69,7 @@ struct
                            fixed_rotation = false,
                            bullet = false,
                            active = true,
-                           data = Block (),
+                           data = data,
                            inertia_scale = 1.0
                          })
 

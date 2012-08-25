@@ -1,7 +1,9 @@
 structure Types =
 struct
 
-datatype body_data = Moth of real
+datatype body_data = Moth of {health : real ref,
+                              goal : (real * real) ref
+                              }
                    | Block of unit
 
 structure BDD = BDDWorld( 

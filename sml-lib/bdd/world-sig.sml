@@ -194,7 +194,7 @@ sig
        values and put them here -twm) *)
     val step : world * real * int * int -> unit
 
-    (* Manually clear forces (they are cleared automatically be default;
+    (* Manually clear forces (they are cleared automatically by default;
        see set_auto_clear_forces). Call this after you are done with
        time steps to clear the forces. You normally call this after
        each call to step, unless you are performing sub-steps. *)
