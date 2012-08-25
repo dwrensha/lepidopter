@@ -2,7 +2,7 @@ structure Types =
 struct
 
 datatype body_data = Moth of {health : real ref,
-                              goal : (real * real) ref
+                              goal : BDDMath.vec2 ref
                               }
                    | Block of unit
 

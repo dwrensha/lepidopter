@@ -15,9 +15,14 @@ struct
   val () = Box2d.create_moth world
                              (BDDMath.vec2 (10.0, 10.0))
                              (Moth {health = ref 1.0,
-                                    goal = ref (15.0, 15.0)})
+                                    goal = ref (BDDMath.vec2 (15.0, 15.0))})
 
-  val () = Box2d.create_block world (BDDMath.vec2 (9.8, 9.0)) (Block ())
+  val () = Box2d.create_moth world
+                             (BDDMath.vec2 (10.0, 17.0))
+                             (Moth {health = ref 1.0,
+                                    goal = ref (BDDMath.vec2 (16.0, 16.0))})
+
+  val () = Box2d.create_block world (BDDMath.vec2 (15.0, 15.0)) (Block ())
 
 
   type state = unit
@@ -34,8 +39,15 @@ struct
 
   val ticks_per_second = 60.0
 
-  fun domothbrain (Moth {...}) = ()
-    | domothbrain _ = ()
+  fun domothbrain b = 
+      case BDD.Body.get_data b of
+          (Moth {health, goal = ref gl}) =>
+          let val pos = BDD.Body.get_position b
+              val gdir = BDDMath.vec2normalized (gl :-: pos)
+              val force = 5.5 *: gdir
+              val () = BDD.Body.apply_force (b, force, pos)
+          in () end
+        | _ => ()
 
   fun dophysics () = 
       let val timestep = 1.0 / ticks_per_second
@@ -95,12 +107,17 @@ struct
     | handle_event _ s = SOME s
 
 
+
+
   fun tick s =
-      ( oapp BDD.Body.get_next (domothbrain o BDD.Body.get_data) 
-             (BDD.World.get_body_list world);
-        dophysics(); 
-        SOME s
-      )
+      let
+      in
+          oapp BDD.Body.get_next
+               domothbrain
+               (BDD.World.get_body_list world);
+          dophysics (); 
+          SOME s
+      end
 end
 
 structure Main =
