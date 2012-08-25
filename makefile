@@ -5,11 +5,11 @@ MAKE=make
 
 # You shouldn't have to edit anything below this line
 
-VERSION_TARGET=10.2
+VERSION_TARGET=10.5
 FRAMEWORKS=functioning/OSX/Frameworks
 CPPFLAGS=-I/usr/local/include -I${FRAMEWORKS}/SDL.framework/Versions/Current/Headers -I${FRAMEWORKS}/SDL_net.framework/Versions/Current/Headers -I${FRAMEWORKS}/SDL_mixer.framework/Versions/Current/Headers -I${FRAMEWORKS}/SDL_image.framework/Versions/Current/Headers -D_THREAD_SAFE -DOSX
 LIBS=-L/usr/lib
-MLTON_FLAGS=-verbose 1 -cc-opt "-g -Dmain=SDL_main" -link-opt "-Wl,-rpath,@executable_path/../Frameworks -F${FRAMEWORKS} -framework SDL_net -framework SDL_image ${LIBS} -framework SDL -framework OpenGL -framework AGL -framework IOKit -framework Carbon -framework Cocoa -framework SDL_mixer" -default-ann 'allowFFI true'
+MLTON_FLAGS=-const 'Exn.keepHistory true' -verbose 1 -cc-opt "-g -Dmain=SDL_main" -link-opt "-Wl,-rpath,@executable_path/../Frameworks -F${FRAMEWORKS} -framework SDL_net -framework SDL_image ${LIBS} -framework SDL -framework OpenGL -framework AGL -framework IOKit -framework Carbon -framework Cocoa -framework SDL_mixer" -default-ann 'allowFFI true'
 RELEASEFILES=$(OUTPUT_EXE) media COPYING
 
 default: game
@@ -27,6 +27,10 @@ bin/sdlmix.o: bin sdlml/sdlmix.c
 	gcc -O $(CPPFLAGS) -c sdlml/sdlmix.c -o bin/sdlmix.o
 
 
+.Phony: typecheck
+typecheck: bin/sdlml.o bin/sdlmix.o bin/sdlmain.o
+	export MACOSX_DEPLOYMENT_TARGET=${VERSION_TARGET}
+	mlton -stop tc $(MLTON_FLAGS) -output $(OUTPUT_EXE) game.cm bin/sdlml.o bin/sdlmix.o bin/sdlmain.o
 
 .PHONY: game
 game: bin/sdlml.o bin/sdlmix.o bin/sdlmain.o
