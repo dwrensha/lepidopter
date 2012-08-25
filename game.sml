@@ -26,12 +26,12 @@ struct
                                      (BDDMath.vec2 (10.0, 10.0))
                                      (Moth {health = ref 1.0,
                                             goal = ref (BDDMath.vec2 (15.0, 15.0)),
-                                            dna = Array.array (5, 1.0) })
+                                            dna = DNA.moth1 })
           val () = Box2d.create_moth world
                                      (BDDMath.vec2 (10.0, 17.0))
                                      (Moth {health = ref 1.0,
                                             goal = ref (BDDMath.vec2 (16.0, 16.0)),
-                                            dna = Array.array (5, 1.0) })
+                                            dna = DNA.moth2 })
 
           val () = Box2d.create_block world (BDDMath.vec2 (15.0, 15.0)) (Block ())
       in world end

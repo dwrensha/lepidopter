@@ -5,6 +5,8 @@ opengl/GL.cm
 opengl/GLU.cm
 sml-lib/bdd/bdd.cm
 
+dna-sig.sml
+dna.sml
 types.sml
 box2d.sml
 opengl.sml
