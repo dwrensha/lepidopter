@@ -5,5 +5,8 @@ opengl/GL.cm
 opengl/GLU.cm
 sml-lib/bdd/bdd.cm
 
+types.sml
+box2d.sml
+opengl.sml
 game.sml
 

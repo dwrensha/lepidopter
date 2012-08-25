@@ -1,127 +1,21 @@
 structure Game :> GAME =
 struct
-
-type health = real
-
-datatype body_data = Moth of health
-                   | Block of unit
-
-  structure BDD = BDDWorld( 
-                    struct type fixture_data = unit
-                           type body_data = body_data
-                           type joint_data = unit
-                    end
-                    )
+  open Types
 
   val gravity = BDDMath.vec2 (0.0, ~1.0) 
   val world = BDD.World.world (gravity, true)
 
   open GL
-  datatype spec = RGB of GLdouble * GLdouble * GLdouble;
+
 
   open BDDOps
   infix 6 :+: :-: %-% %+% +++
   infix 7 *: *% +*: +*+ #*% @*:
 
-  val zero = BDDMath.vec2 (0.0, 0.0) 
+  val () = Box2d.create_moth (BDDMath.vec2 (10.0, 10.0)) world
 
-  fun create_moth (p : BDDMath.vec2) world : unit = 
-      let 
-          val body = BDD.World.create_body
-                         (world,
-                          {typ = BDD.Body.Dynamic,
-                           position = p,
-                           angle = 0.0,
-                           linear_velocity = zero,
-                           angular_velocity = 0.0,
-                           linear_damping = 0.0,
-                           angular_damping = 0.0,
-                           allow_sleep = true,
-                           awake = true,
-                           fixed_rotation = false,
-                           bullet = false,
-                           active = true,
-                           data = Moth 1.0,
-                           inertia_scale = 1.0
-                         })
+  val () = Box2d.create_block (BDDMath.vec2 (9.8, 9.0)) world
 
-          val fixture = BDD.Body.create_fixture_default
-                            (body,
-                             BDDShape.Polygon
-                                 (BDDPolygon.polygon
-                                      [BDDMath.vec2 (0.0, 0.0),
-                                       BDDMath.vec2 (0.4, ~0.2),
-                                       BDDMath.vec2 (0.4, 0.2)]
-                                 ),
-                             (),
-                             10.0)
-          val () = BDD.Fixture.set_restitution (fixture, 0.2)
-          val () = BDD.Fixture.set_friction (fixture, 0.0)
-          val fixture = BDD.Body.create_fixture_default
-                            (body,
-                             BDDShape.Polygon
-                                 (BDDPolygon.polygon
-                                      [BDDMath.vec2 (0.0, 0.0),
-                                       BDDMath.vec2 (~0.4, 0.2),
-                                       BDDMath.vec2 (~0.4, ~0.2)]
-                                 ),
-                             (),
-                             10.0)
-          val () = BDD.Fixture.set_restitution (fixture, 1.0)
-          val () = BDD.Fixture.set_friction (fixture, 0.1)
-      in () end
-
-  val () = create_moth (BDDMath.vec2 (0.3, 0.3)) world
-
-  fun create_block (p : BDDMath.vec2) world : unit = 
-      let 
-          val body = BDD.World.create_body
-                         (world,
-                          {typ = BDD.Body.Static,
-                           position = p,
-                           angle = 0.0,
-                           linear_velocity = zero,
-                           angular_velocity = 0.0,
-                           linear_damping = 0.0,
-                           angular_damping = 0.0,
-                           allow_sleep = true,
-                           awake = true,
-                           fixed_rotation = false,
-                           bullet = false,
-                           active = true,
-                           data = Block (),
-                           inertia_scale = 1.0
-                         })
-
-          val fixture = BDD.Body.create_fixture_default
-                            (body,
-                             BDDShape.Polygon
-                                 (BDDPolygon.box (0.3, 0.3)),
-                             (),
-                             100.0)
-          val () = BDD.Fixture.set_restitution (fixture, 1.0)
-          val () = BDD.Fixture.set_friction (fixture, 0.4)
-      in () end
-
-  val () = create_block (BDDMath.vec2 (0.1, ~0.4)) world
-
-fun DrawPrim (_,[]) = glFlush ()
-  | DrawPrim (obj,l) =
-    let
-        fun draw_vertices [] = ()
-          | draw_vertices ((x,y,z)::t) =
-                    ((glVertex3d x y z); draw_vertices t)
-          
-        fun draw_all [] = ()
-          | draw_all ((RGB(r,g,b), v)::t) =
-            ((glColor3d r g b) ; draw_vertices(v);
-             draw_all t)
-    in
-        (glBegin(obj);
-         draw_all l;
-         glEnd();
-         glFlush())
-    end
 
   type state = unit
   type screen = SDL.surface
@@ -133,20 +27,7 @@ fun DrawPrim (_,[]) = glFlush ()
   
   val initstate = ()
 
-  fun initscreen screen =
-  (
-   glClearColor 0.0 0.0 0.0 1.0;
-   glClearDepth 1.0;
-   glViewport 0 0 width height;
-   glMatrixMode(GL_PROJECTION);
-   glLoadIdentity();
-   glOrtho ~5.0 5.0 ~5.0 5.0 5.0 ~5.0;
-   glMatrixMode(GL_MODELVIEW);
-   glEnable(GL_TEXTURE_2D);
-   glLoadIdentity();
-   SDL.glflip();
-   ()
-  )
+  fun initscreen screen = Opengl.init width height
 
   val ticks_per_second = 60.0
 
@@ -170,8 +51,8 @@ fun DrawPrim (_,[]) = glFlush ()
               val tf = BDDMath.mat22angle theta
               val glpoints0 = List.map (fn pt => BDDMath.vec2xy (pos :+: (tf +*: pt))) points
               val glpoints = List.map (fn (x, y) => (x, y, 0.0)) glpoints0
-          in DrawPrim (prim,
-                       [(RGB (0.0, 1.0, 1.0), glpoints)])
+          in Opengl.DrawPrim (prim,
+                              [(RGB (0.0, 1.0, 1.0), glpoints)])
           end
 
   fun drawbody screen b = 
