@@ -54,7 +54,7 @@ datatype body_data = Moth of health
                                        BDDMath.vec2 (0.4, 0.2)]
                                  ),
                              (),
-                             10000.0)
+                             10.0)
           val () = BDD.Fixture.set_restitution (fixture, 0.2)
           val () = BDD.Fixture.set_friction (fixture, 0.0)
           val fixture = BDD.Body.create_fixture_default
@@ -66,12 +66,44 @@ datatype body_data = Moth of health
                                        BDDMath.vec2 (~0.4, ~0.2)]
                                  ),
                              (),
-                             10000.0)
-          val () = BDD.Fixture.set_restitution (fixture, 0.2)
-          val () = BDD.Fixture.set_friction (fixture, 0.0)
+                             10.0)
+          val () = BDD.Fixture.set_restitution (fixture, 1.0)
+          val () = BDD.Fixture.set_friction (fixture, 0.1)
       in () end
 
   val () = create_moth (BDDMath.vec2 (0.3, 0.3)) world
+
+  fun create_block (p : BDDMath.vec2) world : unit = 
+      let 
+          val body = BDD.World.create_body
+                         (world,
+                          {typ = BDD.Body.Static,
+                           position = p,
+                           angle = 0.0,
+                           linear_velocity = zero,
+                           angular_velocity = 0.0,
+                           linear_damping = 0.0,
+                           angular_damping = 0.0,
+                           allow_sleep = true,
+                           awake = true,
+                           fixed_rotation = false,
+                           bullet = false,
+                           active = true,
+                           data = Block (),
+                           inertia_scale = 1.0
+                         })
+
+          val fixture = BDD.Body.create_fixture_default
+                            (body,
+                             BDDShape.Polygon
+                                 (BDDPolygon.box (0.3, 0.3)),
+                             (),
+                             100.0)
+          val () = BDD.Fixture.set_restitution (fixture, 1.0)
+          val () = BDD.Fixture.set_friction (fixture, 0.4)
+      in () end
+
+  val () = create_block (BDDMath.vec2 (0.1, ~0.4)) world
 
 fun DrawPrim (_,[]) = glFlush ()
   | DrawPrim (obj,l) =
@@ -124,7 +156,7 @@ fun DrawPrim (_,[]) = glFlush ()
       in () end
 
 
-  fun drawfixture screen pos f =
+  fun drawfixture screen pos theta f =
       case BDD.Fixture.shape f of
           BDDShape.Circle c => ()
         | BDDShape.Polygon p => 
@@ -135,7 +167,8 @@ fun DrawPrim (_,[]) = glFlush ()
                             | _ => GL_TRIANGLE_FAN )
               val points = List.tabulate
                                (n, fn ii => BDDPolygon.get_vertex (p, ii))
-              val glpoints0 = List.map (fn pt => BDDMath.vec2xy (pos :+: pt)) points
+              val tf = BDDMath.mat22angle theta
+              val glpoints0 = List.map (fn pt => BDDMath.vec2xy (pos :+: (tf +*: pt))) points
               val glpoints = List.map (fn (x, y) => (x, y, 0.0)) glpoints0
           in DrawPrim (prim,
                        [(RGB (0.0, 1.0, 1.0), glpoints)])
@@ -143,33 +176,19 @@ fun DrawPrim (_,[]) = glFlush ()
 
   fun drawbody screen b = 
       let val pos = BDD.Body.get_position b
+          val theta = BDD.Body.get_angle b
           val fl = BDD.Body.get_fixtures b
       in case BDD.Body.get_data b of
-             Moth h => ((*DrawPrim (GL_TRIANGLES,
-                                 [(RGB (1.0, 1.0, 1.0),
-                                  [(x, y, 0.0),
-                                   (x + 0.4, y + 0.2, 0.0),
-                                   (x + 0.4, y - 0.2, 0.0),
-                                   (x, y, 0.0),
-                                   (x - 0.4, y + 0.2, 0.0),
-                                   (x - 0.4, y - 0.2, 0.0)
-                                ])]); *)
-                        BDDOps.oapp BDD.Fixture.get_next (drawfixture screen pos) fl
-                       )
-           | Block _ => ()
+             Moth h => 
+             BDDOps.oapp BDD.Fixture.get_next (drawfixture screen pos theta) fl
+           | Block _ => 
+             BDDOps.oapp BDD.Fixture.get_next (drawfixture screen pos theta) fl
       end
 
   fun render screen () =
   let in
       glClear(GL_COLOR_BUFFER_BIT + GL_DEPTH_BUFFER_BIT);
       glLoadIdentity();
-      DrawPrim (GL_QUADS,
-             [
-              (RGB(0.9, 1.0, 0.0),
-               [(~1.0, 1.0, 0.0), (~1.0, ~1.0, 0.0)]),
-              (RGB(0.0,0.7,0.7),
-               [(1.0, ~1.0, 0.0),( 1.0, 1.0, 0.0)])
-              ]);
    
       BDDOps.oapp BDD.Body.get_next (drawbody screen) (BDD.World.get_body_list world);
       SDL.glflip();
