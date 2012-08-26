@@ -45,7 +45,7 @@ val dna_maxs = Array.fromList [0.5,
                                1.0,
                                0.005, (* planprob *)
                               
-                               1.0,  (* mothweight *)
+                               0.5,  (* mothweight *)
                                1000.0, (* lightbulbweight *)
                                100.0,  (* blockweight *)
                                100.0]  (* ballweight *)

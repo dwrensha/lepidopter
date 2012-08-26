@@ -105,11 +105,13 @@ struct
                              val {lowerbound, upperbound} = Array2.sub (aabbs, ri, ci)
                              val center = 2.0 *: (lowerbound :+: upperbound)
                              val dist = BDDMath.vec2length (pos :-: center)
+                             val noise = 5.0 * (random_real ())
                              val score = (Real.fromInt moths * mothweight) +
                                          (Real.fromInt lightbulbs * lightbulbweight) +
                                          (Real.fromInt blocks * blockweight) +
                                          (Real.fromInt balls * ballweight) +
-                                         (1.0 / (1.0 + dist) * (1.0 + dist))
+                                         (100.0 / (1.0 + dist) * (1.0 + dist)) +
+                                         noise
                          in
                              if score > !bestscore
                              then (bestidx := (ri, ci);
@@ -132,7 +134,8 @@ struct
              val () = if random_real() < planprob
                       then goal := (plan pos dna)
                       else ()
-             val gdir = BDDMath.vec2normalized ((!goal) :-: pos)
+             val noise = Box2d.random_vec_in ~0.1 0.1 ~0.1 0.1
+             val gdir = BDDMath.vec2normalized ((!goal) :-: (pos :+: noise))
              val mforce = DNA.get dna DNA.FORCE
              val force = (health * mforce) *: gdir
              val () = BDD.Body.apply_force (b, force, pos)

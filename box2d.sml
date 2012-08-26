@@ -273,6 +273,32 @@ struct
                                end)
              in bs @ rbs end
 
+           | 3 =>
+             let val bs = floor @ ceiling @ leftwall @ rightwall @ 
+                     [
+                      (BDDMath.vec2 (10.0, 10.0), ~ Math.pi / 4.0, Block ()),
+                      ((BDDMath.vec2 (10.0, 10.0))
+                           :+: (BDDMath.vec2 (0.7, 0.7)),
+                       ~ Math.pi / 4.0, Lightbulb ()),
+                      ((BDDMath.vec2 (10.0, 10.0))
+                           :-: (BDDMath.vec2 (0.7, 0.7)),
+                       3.0 * Math.pi / 4.0, Lightbulb ())
+
+                     ]
+
+                 val rbs = List.tabulate
+                           (25,
+                            fn i =>
+                               let val v = random_vec ()
+                                   val go = random_vec_in ~1.0 1.0 ~1.0 1.0
+                               in (v,
+                                   0.0,
+                                   Moth {health = ref 1.0,
+                                         goal = ref (v :+: go),
+                                         dna = DNA.random () })
+                               end)
+             in bs @ rbs end
+
            | _ => nil
       end
 
