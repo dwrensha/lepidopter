@@ -9,6 +9,7 @@ datatype body_data = Moth of {health : real ref,
                               dna : DNA.moth_dna
                               }
                    | Block of unit
+                   | Ball of unit
 
 datatype fixture_data = Fix of {health: real ref,
                                 color : spec}

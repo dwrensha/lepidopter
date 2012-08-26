@@ -34,6 +34,8 @@ struct
           val wing_width = (DNA.get dna DNA.WINGSPAN) / 2.0
           val half_height = (DNA.get dna DNA.HEIGHT) / 2.0
 
+          val density = DNA.get dna DNA.DENSITY
+
           val fixture = BDD.Body.create_fixture_default
                             (body,
                              BDDShape.Polygon
@@ -43,7 +45,7 @@ struct
                                        BDDMath.vec2 (wing_width, half_height)]
                                  ),
                              Fix {color = color, health = health},
-                             10.0)
+                             density)
           val () = BDD.Fixture.set_restitution (fixture, 0.2)
           val () = BDD.Fixture.set_friction (fixture, 0.0)
           val fixture = BDD.Body.create_fixture_default
@@ -55,7 +57,7 @@ struct
                                        BDDMath.vec2 (~wing_width, ~half_height)]
                                  ),
                              Fix {color = color, health = health},
-                             10.0)
+                             density)
           val () = BDD.Fixture.set_restitution (fixture, 1.0)
           val () = BDD.Fixture.set_friction (fixture, 0.1)
       in () end
@@ -89,6 +91,37 @@ struct
           val () = BDD.Fixture.set_restitution (fixture, 1.0)
           val () = BDD.Fixture.set_friction (fixture, 0.4)
       in () end
+    | create_body world (p : BDDMath.vec2) (data as Ball ()) : unit = 
+      let 
+          val body = BDD.World.create_body
+                         (world,
+                          {typ = BDD.Body.Dynamic,
+                           position = p,
+                           angle = 0.0,
+                           linear_velocity = BDDMath.vec2 (0.0, 0.5),
+                           angular_velocity = 0.0,
+                           linear_damping = 0.0,
+                           angular_damping = 0.0,
+                           allow_sleep = false,
+                           awake = true,
+                           fixed_rotation = false,
+                           bullet = true,
+                           active = true,
+                           data = data,
+                           inertia_scale = 1.0
+                         })
+
+          val fixture = BDD.Body.create_fixture_default
+                            (body,
+                             BDDShape.Circle {radius = 0.5, p = zero},
+(*                              BDDShape.Polygon
+                                 (BDDPolygon.box (0.3, 0.3)), *)
+                             Fix {color = RGB (1.0, 0.0, 1.0), health = ref 1.0},
+                             10.0)
+          val () = BDD.Fixture.set_restitution (fixture, 1.0)
+          val () = BDD.Fixture.set_friction (fixture, 0.4)
+      in () end
+
 
 
   val mt =

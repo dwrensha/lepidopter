@@ -26,7 +26,7 @@ struct
 
   val use_gl = true
   
-  val gravity = BDDMath.vec2 (0.0, ~1.0) 
+  val gravity = BDDMath.vec2 (0.0, ~4.0) 
   val initstate =
       let val world = BDD.World.world (gravity, true)
           val () = Box2d.create_body world
@@ -99,7 +99,21 @@ struct
 
   fun drawfixture screen pos theta f =
       case BDD.Fixture.shape f of
-          BDDShape.Circle c => ()
+          BDDShape.Circle {radius, p} =>
+          let val n = 40
+              val rad = radius *: (BDDMath.vec2 (1.0, 0.0))
+              val points = List.tabulate
+                           (n,
+                         fn ii => 
+                            let val ang = 2.0 * Math.pi * (Real.fromInt ii / Real.fromInt n)
+                                val tf = BDDMath.mat22angle ang 
+                            in BDDMath.vec2xy (pos :+: (tf +*: rad)) end
+                           )
+              val glpoints = List.map (fn (x, y) => (x, y, 0.0)) points
+              val Fix {color, health} = BDD.Fixture.get_data f
+          in Opengl.DrawPrim (GL_TRIANGLE_FAN,
+                              [(color, glpoints)])
+          end
         | BDDShape.Polygon p => 
           let val n = BDDPolygon.get_vertex_count p
               val prim = (case n of
@@ -125,7 +139,7 @@ struct
       in case BDD.Body.get_data b of
              Moth h => 
              BDDOps.oapp BDD.Fixture.get_next (drawfixture screen pos theta) fl
-           | Block _ => 
+           |  _ => 
              BDDOps.oapp BDD.Fixture.get_next (drawfixture screen pos theta) fl
       end
 
@@ -149,7 +163,7 @@ struct
       let
           val () = Box2d.create_body w
                                      (BDDMath.vec2 (window_to_world (x,y)))
-                                     (Block ())
+                                     (Ball ())
       in SOME w end
     | handle_event _ s = SOME s
 
