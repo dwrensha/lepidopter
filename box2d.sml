@@ -186,18 +186,31 @@ struct
 
   fun get_level_data constants n = 
       let val CONST {left, right, bottom, top, ...} = constants
-          fun random_vec () = random_vec_in left right bottom top
+          fun random_vec () = random_vec_in (left + 1.0) (right - 1.0)
+                                            (bottom + 2.0) (top - 1.0)
           val floor = 
-                     [(BDDMath.vec2 (1.0, 0.0), 0.0, Block ()),
-                      (BDDMath.vec2 (3.0, 0.0), 0.0, Block ()),
-                      (BDDMath.vec2 (5.0, 0.0), 0.0, Block ()),
-                      (BDDMath.vec2 (7.0, 0.0), 0.0, Block ()),
-                      (BDDMath.vec2 (9.0, 0.0), 0.0, Block ()),
-                      (BDDMath.vec2 (11.0, 0.0), 0.0, Block ()),
-                      (BDDMath.vec2 (13.0, 0.0), 0.0, Block ()),
-                      (BDDMath.vec2 (15.0, 0.0), 0.0, Block ()),
-                      (BDDMath.vec2 (17.0, 0.0), 0.0, Block ()),
-                      (BDDMath.vec2 (19.0, 0.0), 0.0, Block ())]
+                     [(BDDMath.vec2 (1.0, 1.5), 0.0, Block ()),
+                      (BDDMath.vec2 (3.0, 1.5), 0.0, Block ()),
+                      (BDDMath.vec2 (5.0, 1.5), 0.0, Block ()),
+                      (BDDMath.vec2 (7.0, 1.5), 0.0, Block ()),
+                      (BDDMath.vec2 (9.0, 1.5), 0.0, Block ()),
+                      (BDDMath.vec2 (11.0, 1.5), 0.0, Block ()),
+                      (BDDMath.vec2 (13.0, 1.5), 0.0, Block ()),
+                      (BDDMath.vec2 (15.0, 1.5), 0.0, Block ()),
+                      (BDDMath.vec2 (17.0, 1.5), 0.0, Block ()),
+                      (BDDMath.vec2 (19.0, 1.5), 0.0, Block ()),
+
+                      (BDDMath.vec2 (0.0, 0.5), 0.0, Block ()),
+                      (BDDMath.vec2 (2.0, 0.5), 0.0, Block ()),
+                      (BDDMath.vec2 (4.0, 0.5), 0.0, Block ()),
+                      (BDDMath.vec2 (6.0, 0.5), 0.0, Block ()),
+                      (BDDMath.vec2 (8.0, 0.5), 0.0, Block ()),
+                      (BDDMath.vec2 (10.0, 0.5), 0.0, Block ()),
+                      (BDDMath.vec2 (12.0, 0.5), 0.0, Block ()),
+                      (BDDMath.vec2 (14.0, 0.5), 0.0, Block ()),
+                      (BDDMath.vec2 (16.0, 0.5), 0.0, Block ()),
+                      (BDDMath.vec2 (18.0, 0.5), 0.0, Block ()),
+                      (BDDMath.vec2 (20.0, 0.5), 0.0, Block ())]
           val ceiling = 
                      [(BDDMath.vec2 (1.0, 20.0), 0.0, Block ()),
                       (BDDMath.vec2 (3.0, 20.0), 0.0, Block ()),
@@ -274,20 +287,23 @@ struct
              in bs @ rbs end
 
            | 3 =>
-             let val bs = floor @ ceiling @ leftwall @ rightwall @ 
+             let                 
+                 val rtot = 0.70710678
+                 val bs = floor @ ceiling @ leftwall @ rightwall @ 
                      [
                       (BDDMath.vec2 (10.0, 10.0), ~ Math.pi / 4.0, Block ()),
                       ((BDDMath.vec2 (10.0, 10.0))
-                           :+: (BDDMath.vec2 (0.7, 0.7)),
+                           :+: (BDDMath.vec2 (0.7 * rtot, 0.7 * rtot)),
                        ~ Math.pi / 4.0, Lightbulb ()),
                       ((BDDMath.vec2 (10.0, 10.0))
-                           :-: (BDDMath.vec2 (0.7, 0.7)),
+                           :-: (BDDMath.vec2 (0.7 * rtot, 0.7 * rtot)),
                        3.0 * Math.pi / 4.0, Lightbulb ())
 
                      ]
 
+
                  val rbs = List.tabulate
-                           (25,
+                           (75,
                             fn i =>
                                let val v = random_vec ()
                                    val go = random_vec_in ~1.0 1.0 ~1.0 1.0
