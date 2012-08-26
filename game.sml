@@ -19,7 +19,7 @@ struct
   val constants = CONST {width = width, height = height,
                          left = 0.0, right = 20.0,
                          bottom = 0.0, top = 20.0,
-                         gravity = BDDMath.vec2 (0.0, ~4.0)}
+                         gravity = BDDMath.vec2 (0.0, ~5.0)}
 
   fun window_to_world (x, y) = 
       let val CONST {left, right, bottom, top, width, height, ...} = constants
@@ -49,12 +49,13 @@ struct
           BDDShape.Circle {radius, p} =>
           let val n = 40
               val rad = radius *: (BDDMath.vec2 (1.0, 0.0))
+              val tf0 = BDDMath.mat22angle theta
               val points = List.tabulate
                            (n,
                          fn ii => 
                             let val ang = 2.0 * Math.pi * (Real.fromInt ii / Real.fromInt n)
                                 val tf = BDDMath.mat22angle ang 
-                            in BDDMath.vec2xy (pos :+: p :+: (tf +*: rad)) end
+                            in BDDMath.vec2xy (pos :+: (tf0 +*: p) :+: (tf +*: rad)) end
                            )
               val glpoints = List.map (fn (x, y) => (x, y, 0.0)) points
               val Fix {color, health} = BDD.Fixture.get_data f
@@ -110,6 +111,7 @@ struct
       let
           val () = Box2d.create_body world
                                      (BDDMath.vec2 (window_to_world (x,y)))
+                                     0.0
                                      (Ball ())
       in SOME s end
     | handle_event _ s = SOME s

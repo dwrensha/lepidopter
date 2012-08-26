@@ -47,13 +47,6 @@ struct
                       val by = top - (r + 1.0) * row_height
                       val lower = BDDMath.vec2 (lx, by)
                       val upper = BDDMath.vec2 (rx, ty)
-                      val (x1,y1) = BDDMath.vec2xy lower
-                      val (x2,y2) = BDDMath.vec2xy upper
-                      val () = print ("made aabb: " ^ Real.toString x1 ^
-                                      " " ^ Real.toString y1 ^ " " ^ Real.toString x2 ^
-                                      " " ^ Real.toString y2 ^ "\n")
-
-
                   in Array2.update (aabbs, ri, ci,
                                     { lowerbound = lower, upperbound = upper }
                                    )
@@ -147,7 +140,7 @@ struct
 
  fun dobrains world =
      let val () = if (!counter) mod update_period = 0
-                  then (print "updating...\n"; update_stats world)
+                  then update_stats world
                   else ()
          val () = inc counter
      in
