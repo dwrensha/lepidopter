@@ -10,33 +10,27 @@ struct
 
   type screen = SDL.surface
 
-  (* Constant parameters *)
   val width = 500
   val height = 500
 
-  (* world coordinates of window boundary *)
-  val left = 0.0
-  val right = 20.0
-  val bottom = 0.0
-  val top = 20.0
-
+  val constants = CONST {width = width, height = height,
+                         left = 0.0, right = 20.0,
+                         bottom = 0.0, top = 20.0,
+                         gravity = BDDMath.vec2 (0.0, ~4.0)}
 
   fun window_to_world (x, y) = 
-      ((Real.fromInt x  / Real.fromInt width) * (right - left) + left,
-       (Real.fromInt (height - y)  / Real.fromInt height) * (top - bottom) + bottom)
+      let val CONST {left, right, bottom, top, width, height, ...} = constants
+      in
+          ((Real.fromInt x  / Real.fromInt width) * (right - left) + left,
+           (Real.fromInt (height - y)  / Real.fromInt height) * (top - bottom) + bottom)
+      end
 
   val use_gl = true
   
-  val gravity = BDDMath.vec2 (0.0, ~4.0) 
   val initstate =
-      let val world = BDD.World.world (gravity, true)
-          val () = Box2d.populate world
-                                  (Box2d.get_level_data (left,right,bottom,top) 1)
-          val () = BDD.World.set_begin_contact (world, Box2d.contact_listener)
-      in GS {world = world, level = 1} end
+      Box2d.setup_level 1 constants
 
-
-  fun initscreen screen = Opengl.init width height left right bottom top
+  fun initscreen screen = Opengl.init constants
 
   val ticks_per_second = 60.0
 
@@ -131,7 +125,7 @@ struct
     | handle_event _ s = SOME s
 
 
-  fun tick (s as GS {world, level}) =
+  fun tick (s as GS {world, level, ...}) =
       let
       in
           oapp BDD.Body.get_next

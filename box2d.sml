@@ -177,8 +177,8 @@ struct
       let val () = create_body world pos body_data
       in populate world bodies end
 
-  fun get_level_data world_bounds n = 
-      let val (left, right, bottom, top) = world_bounds
+  fun get_level_data constants n = 
+      let val CONST {left, right, bottom, top, ...} = constants
           fun random_vec () = random_vec_in left right bottom top
       in case n 
           of 1 =>
@@ -213,7 +213,6 @@ struct
 
 
 
-
   fun take_hit (Moth {health, ...}) = 
       (health := ((!health) - 0.03);
        if !health < 0.0 then health := 0.0 else ()
@@ -227,6 +226,17 @@ struct
           val bdb = BDD.Body.get_data (BDD.Fixture.get_body fb)
           val () = (take_hit bda; take_hit bdb)
       in () end
+
+
+  fun setup_level level (constants as CONST {gravity, ...}) = 
+      let 
+          val ld = get_level_data constants level
+          val new_world = BDD.World.world (gravity, true)
+          val () = populate new_world ld
+          val () = BDD.World.set_begin_contact (new_world, contact_listener)
+      in GS {world = new_world, level = level, constants = constants}
+      end
+
 
 
 end

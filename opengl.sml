@@ -23,7 +23,7 @@ fun DrawPrim (_,[]) = glFlush ()
     end
 
 
-fun init width height left right bottom top = (
+fun init (CONST {width, height, left, right, bottom, top, ...}) = (
    glClearColor 0.0 0.0 0.0 1.0;
    glClearDepth 1.0;
    glViewport 0 0 width height;

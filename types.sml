@@ -22,9 +22,18 @@ structure BDD = BDDWorld(
                 end
                 )
 
-datatype game_state = GS of {world : BDD.world,
-                             level : int}
 
+datatype constants = CONST of {width : int,
+                               height : int,
+                               left : real,
+                               right : real,
+                               bottom : real,
+                               top : real,
+                               gravity : BDDMath.vec2}
+
+datatype game_state = GS of {world : BDD.world,
+                             level : int,
+                             constants : constants}
 
 
 end
