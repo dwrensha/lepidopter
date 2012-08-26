@@ -39,5 +39,4 @@ datatype game_state = GS of {world : BDD.world,
                              persistent : persistent_state
                             }
 
-
 end

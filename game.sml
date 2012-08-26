@@ -1,5 +1,6 @@
 structure Game :> GAME =
 struct
+  open Common
   open Types
   open GL
   open BDDOps
@@ -115,9 +116,7 @@ struct
   fun tick (s as GS {world, level, ...}) =
       let
       in
-          oapp BDD.Body.get_next
-               MothBrain.domothbrain
-               (BDD.World.get_body_list world);
+          MothBrain.dobrains world;
           dophysics world; 
           SOME s
       end

@@ -1,6 +1,7 @@
 structure MothBrain =
 struct
 
+  open Common
   open Types
 
   open BDDOps
@@ -54,44 +55,66 @@ struct
            )
      end
 
+ fun inc r = r := ((!r) + 1)
+
  fun update_stats world =
      Util.for 0 (rows - 1)
        (fn ri =>
          Util.for 0 (cols - 1)
            (fn ci =>
                let val aabb = Array2.sub (aabbs, ri, ci)
+                   val nmoths = ref 0
+                   val nlightbulbs = ref 0
+                   val nblocks = ref 0
+                   val nballs = ref 0
                    fun cb f = 
                        (case Box2d.fixture_to_body_data f of
-                            Moth _ => true
-                          | Lightbulb () => true
-                          | Block () => true
-                          | Ball () => true
+                            Moth _ => (inc nmoths; true)
+                          | Lightbulb () => (inc nlightbulbs; true)
+                          | Block () => (inc nblocks; true)
+                          | Ball () => (inc nballs; true)
                        )
                    val () = BDD.World.query_aabb (world, cb, aabb)
-               in ()
+               in Array2.update (stats, ri, ci,
+                                 CS {lightbulbs = !nlightbulbs,
+                                     moths = !nmoths,
+                                     balls = !nballs,
+                                     blocks = !nblocks})
                end 
            )
        )
 
- (* use BDD.World.query_aabb (world, callback, )*)
+ fun plan pos =
+     let 
+     in () end
+
+ fun dosinglebrain world b = 
+     case BDD.Body.get_data b of
+         (Moth {health = ref health, goal = ref gl, dna}) =>
+         let
+             val pos = BDD.Body.get_position b
+             val planprob = DNA.get dna DNA.PLANPROB
+             
+             val gdir = BDDMath.vec2normalized (gl :-: pos)
+             val mforce = DNA.get dna DNA.FORCE
+             val force = (health * mforce) *: gdir
+             val () = BDD.Body.apply_force (b, force, pos)
+         in () end
+       | _ => ()
 
  val counter = ref 0
+ val update_period = 30
 
-
-
-
-
-  fun domothbrain b = 
-      case BDD.Body.get_data b of
-          (Moth {health = ref health, goal = ref gl, dna}) =>
-          let val pos = BDD.Body.get_position b
-              val gdir = BDDMath.vec2normalized (gl :-: pos)
-              val mforce = DNA.get dna DNA.FORCE
-              val force = (health * mforce) *: gdir
-              val planprob = DNA.get dna DNA.PLANPROB
-              val () = BDD.Body.apply_force (b, force, pos)
-          in () end
-        | _ => ()
+ fun dobrains world =
+     let val () = if (!counter) mod update_period = 0
+                  then update_stats world
+                  else ()
+         val () = inc counter
+     in
+         oapp BDD.Body.get_next
+              (dosinglebrain world)
+              (BDD.World.get_body_list world)
+     end
 
 
 

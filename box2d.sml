@@ -1,5 +1,6 @@
 structure Box2d = 
 struct
+  open Common
   open Types
   open BDDOps
   infix 6 :+: :-: %-% %+% +++
@@ -162,13 +163,10 @@ struct
       BDD.Body.get_data (BDD.Fixture.get_body f)
 
 
-  val mt =
-      MersenneTwister.initstring (Time.toString (Time.now ()))
-
   fun random_vec_in left right bottom top =
       let open MersenneTwister
-          val x = (Real.fromInt (random_nat mt 1000)) / 1000.0
-          val y = (Real.fromInt (random_nat mt 1000)) / 1000.0
+          val x = random_real()
+          val y = random_real()
       in BDDMath.vec2
              (x * (right - left) + left,
               y * (top - bottom) + bottom)

@@ -1,6 +1,8 @@
 structure DNA :> DNASIG = 
 struct
 
+open Common
+
 type moth_dna = real array
 
 type index = int
@@ -42,16 +44,8 @@ fun get dna idx =
         v * (mx - mn) + mn
     end
 
-
-val mt =
-    MersenneTwister.initstring (Time.toString (Time.now ()))
-
 fun random () = 
-    let open MersenneTwister
-    in
-        Array.tabulate (SIZE,
-                     fn _ => (Real.fromInt (random_nat mt 1000)) / 1000.0)
-    end
+    Array.tabulate (SIZE, fn _ => random_real())
 
 val moth1 = Array.fromList [0.2, 0.3, 0.5, 1.0, 0.9, 0.8, 0.1, 1.0]
 val moth2 = Array.fromList [0.9, 0.4, 0.4, 0.9, 0.0, 0.9, 0.99, 0.01]
