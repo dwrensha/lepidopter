@@ -5,7 +5,7 @@ struct
   infix 6 :+: :-: %-% %+% +++
   infix 7 *: *% +*: +*+ #*% @*:
 
-  val zero = BDDMath.vec2 (0.0, 0.0) 
+  val zero = BDDMath.vec2_zero
 
   fun create_body world (p : BDDMath.vec2) (data as Moth {dna, health, ...}) : unit = 
       let 
@@ -158,6 +158,8 @@ struct
           val () = BDD.Fixture.set_friction (fixture, 0.4)
       in () end
 
+  fun fixture_to_body_data f = 
+      BDD.Body.get_data (BDD.Fixture.get_body f)
 
 
   val mt =
