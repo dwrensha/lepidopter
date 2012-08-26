@@ -12,6 +12,7 @@ val FORCE : index
 val RED : index
 val GREEN : index
 val BLUE : index
+val PLANPROB : index
 
 val get : moth_dna -> index -> real
 

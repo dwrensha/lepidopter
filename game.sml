@@ -32,17 +32,6 @@ struct
 
   fun initscreen screen = Opengl.init constants
 
-  fun domothbrain b = 
-      case BDD.Body.get_data b of
-          (Moth {health = ref health, goal = ref gl, dna}) =>
-          let val pos = BDD.Body.get_position b
-              val gdir = BDDMath.vec2normalized (gl :-: pos)
-              val mforce = DNA.get dna DNA.FORCE
-              val force = (health * mforce) *: gdir
-              val () = BDD.Body.apply_force (b, force, pos)
-          in () end
-        | _ => ()
-
   fun dophysics world = 
       let val timestep = 1.0 / ticks_per_second
           val () = BDD.World.step (world, timestep, 10, 10)
@@ -127,7 +116,7 @@ struct
       let
       in
           oapp BDD.Body.get_next
-               domothbrain
+               MothBrain.domothbrain
                (BDD.World.get_body_list world);
           dophysics world; 
           SOME s
