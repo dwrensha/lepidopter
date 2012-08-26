@@ -47,13 +47,14 @@ struct
   fun drawfixture screen pos theta f =
       case BDD.Fixture.shape f of
           BDDShape.Circle {radius, p} =>
-          let val n = 40
+          let val n = 36
               val rad = radius *: (BDDMath.vec2 (1.0, 0.0))
               val tf0 = BDDMath.mat22angle theta
               val points = List.tabulate
                            (n,
                          fn ii => 
-                            let val ang = 2.0 * Math.pi * (Real.fromInt ii / Real.fromInt n)
+                            let val ang = theta +
+                                          2.0 * Math.pi * (Real.fromInt ii / Real.fromInt n)
                                 val tf = BDDMath.mat22angle ang 
                             in BDDMath.vec2xy (pos :+: (tf0 +*: p) :+: (tf +*: rad)) end
                            )
@@ -102,8 +103,35 @@ struct
 
   end
 
+  val inputstring = ref ""
+  val cheating = ref false
+
   fun keyDown (SDL.SDLK_ESCAPE) _ = NONE (* quit the game *)
-    | keyDown key s = SOME s
+    | keyDown SDL.SDLK_RETURN (s as GS {level, constants, persistent, ...}) = 
+      let val newstate = 
+               (case !inputstring of
+                    "cheat" => ((cheating := true); SOME s)
+                  | mbe_num => 
+                    if !cheating
+                    then (case Int.fromString mbe_num of
+                              SOME lev =>
+                                SOME (Box2d.setup_level lev constants persistent)
+                            | NONE => SOME s
+                         )
+                    else SOME s
+               )
+      in
+       inputstring := "";
+       newstate
+      end
+    | keyDown k s =
+      (inputstring := ((!inputstring) ^ (SDL.sdlktos k));
+       if String.size (!inputstring) > 40
+       then inputstring := ""
+       else ();
+       SOME s
+      )
+
 
   fun handle_event (SDL.E_KeyDown {sym = k}) s = keyDown k s
     | handle_event SDL.E_Quit s = NONE
@@ -115,6 +143,7 @@ struct
                                      (Ball ())
       in SOME s end
     | handle_event _ s = SOME s
+
 
 
   fun tick (s as GS {world, level, ...}) =

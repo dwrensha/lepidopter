@@ -115,7 +115,7 @@ struct
           val fixture = BDD.Body.create_fixture_default
                             (body,
                              BDDShape.Circle {radius = 0.45, p = zero},
-                             Fix {color = RGB (0.0, 1.0, 1.0), health = ref 1.0},
+                             Fix {color = RGB (0.65, 0.2, 1.0), health = ref 1.0},
                              10.0)
           val () = BDD.Fixture.set_restitution (fixture, 1.0)
           val () = BDD.Fixture.set_friction (fixture, 0.4)
@@ -232,12 +232,32 @@ struct
                       (BDDMath.vec2 (20.0, 17.0),  Math.pi / 2.0, Block ()),
                       (BDDMath.vec2 (20.0, 19.0),  Math.pi / 2.0, Block ())]
       in case n 
-          of 1 =>
+          of
+             1 =>
              let val bs = floor @ ceiling @ leftwall @ rightwall @ 
                      [
                       (BDDMath.vec2 (8.5, 19.3), Math.pi, Lightbulb ()),
                       (BDDMath.vec2 (10.0, 19.3), Math.pi, Lightbulb ()),
                       (BDDMath.vec2 (11.5, 19.3), Math.pi, Lightbulb ())
+                     ]
+
+                 val rbs = List.tabulate
+                           (20,
+                            fn i =>
+                               let val v = random_vec ()
+                                   val go = random_vec_in ~1.0 1.0 ~1.0 1.0
+                               in (v,
+                                   0.0,
+                                   Moth {health = ref 1.0,
+                                         goal = ref (v :+: go),
+                                         dna = DNA.random () })
+                               end)
+             in bs @ rbs end
+           | 2 =>
+             let val bs = floor @ ceiling @ leftwall @ rightwall @ 
+                     [
+                      (BDDMath.vec2 (19.3, 10.0), Math.pi / 2.0, Lightbulb ()),
+                      (BDDMath.vec2 (0.7, 10.0), ~ Math.pi / 2.0, Lightbulb ())
                      ]
 
                  val rbs = List.tabulate
@@ -252,6 +272,7 @@ struct
                                          dna = DNA.random () })
                                end)
              in bs @ rbs end
+
            | _ => nil
       end
 
