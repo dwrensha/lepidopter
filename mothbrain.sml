@@ -102,10 +102,14 @@ struct
                       (fn ci =>
                          let val CS {moths, lightbulbs, blocks, balls} = 
                                  Array2.sub (stats, ri, ci)
+                             val {lowerbound, upperbound} = Array2.sub (aabbs, ri, ci)
+                             val center = 2.0 *: (lowerbound :+: upperbound)
+                             val dist = BDDMath.vec2length (pos :-: center)
                              val score = (Real.fromInt moths * mothweight) +
                                          (Real.fromInt lightbulbs * lightbulbweight) +
                                          (Real.fromInt blocks * blockweight) +
-                                         (Real.fromInt balls * ballweight)
+                                         (Real.fromInt balls * ballweight) +
+                                         (1.0 / (1.0 + dist) * (1.0 + dist))
                          in
                              if score > !bestscore
                              then (bestidx := (ri, ci);

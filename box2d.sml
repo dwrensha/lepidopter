@@ -235,18 +235,20 @@ struct
           of 1 =>
              let val bs = floor @ ceiling @ leftwall @ rightwall @ 
                      [
-                      (BDDMath.vec2 (15.0, 19.3), Math.pi, Lightbulb ()),
-                      (BDDMath.vec2 (13.0, 19.3), Math.pi, Lightbulb ())
+                      (BDDMath.vec2 (8.5, 19.3), Math.pi, Lightbulb ()),
+                      (BDDMath.vec2 (10.0, 19.3), Math.pi, Lightbulb ()),
+                      (BDDMath.vec2 (11.5, 19.3), Math.pi, Lightbulb ())
                      ]
 
                  val rbs = List.tabulate
-                           (50,
+                           (25,
                             fn i =>
                                let val v = random_vec ()
+                                   val go = random_vec_in ~1.0 1.0 ~1.0 1.0
                                in (v,
                                    0.0,
                                    Moth {health = ref 1.0,
-                                         goal = ref v,
+                                         goal = ref (v :+: go),
                                          dna = DNA.random () })
                                end)
              in bs @ rbs end
@@ -255,18 +257,28 @@ struct
 
 
 
-  fun take_hit (Moth {health, ...}) = 
-      (health := ((!health) - 0.03);
-       if !health < 0.0 then health := 0.0 else ()
-      )
-    | take_hit _ = ()
+  (* do_hit b1 b2. b1 hits b2 *)
+  fun do_hit b1 (Moth {health, ...}) =
+      let val damage = 
+              (case b1 of 
+                   Moth _ => 0.002
+                 | Lightbulb _ => 0.03
+                 | Block _ => 0.01
+                 | Ball _ => 0.02
+              )
+      in
+          health := ((!health) - damage);
+          if !health < 0.0 then health := 0.0 else ()
+      end
+    | do_hit _ _ = ()
+
 
   fun contact_listener c = 
       let
           val (fa, fb) = BDD.Contact.get_fixtures c
           val bda = BDD.Body.get_data (BDD.Fixture.get_body fa)
           val bdb = BDD.Body.get_data (BDD.Fixture.get_body fb)
-          val () = (take_hit bda; take_hit bdb)
+          val () = (do_hit bda bdb; do_hit bdb bda)
       in () end
 
 
