@@ -22,7 +22,8 @@ structure BDD = BDDWorld(
                 end
                 )
 
-
+datatype game_state = GS of {world : BDD.world,
+                             level : int}
 
 
 

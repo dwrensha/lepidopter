@@ -196,7 +196,8 @@ struct
                              goal = ref (BDDMath.vec2 (15.0, 15.0)),
                              dna = DNA.random () }),
                       (BDDMath.vec2 (10.0, 1.0), Block ()),
-                      (BDDMath.vec2 (15.0, 14.7), Lightbulb ())
+                      (BDDMath.vec2 (15.0, 14.7), Lightbulb ()),
+                      (BDDMath.vec2 (5.0, 12.8), Lightbulb ())
                      ]
 
                  val rbs = List.tabulate

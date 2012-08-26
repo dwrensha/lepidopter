@@ -6,7 +6,8 @@ struct
   infix 6 :+: :-: %-% %+% +++
   infix 7 *: *% +*: +*+ #*% @*:
 
-  type state = BDD.world
+  type state = game_state
+
   type screen = SDL.surface
 
   (* Constant parameters *)
@@ -32,7 +33,7 @@ struct
           val () = Box2d.populate world
                                   (Box2d.get_level_data (left,right,bottom,top) 1)
           val () = BDD.World.set_begin_contact (world, Box2d.contact_listener)
-      in world end
+      in GS {world = world, level = 1} end
 
 
   fun initscreen screen = Opengl.init width height left right bottom top
@@ -105,7 +106,7 @@ struct
              BDDOps.oapp BDD.Fixture.get_next (drawfixture screen pos theta) fl
       end
 
-  fun render screen world =
+  fun render screen (GS {world, ...}) =
   let in
       glClear(GL_COLOR_BUFFER_BIT + GL_DEPTH_BUFFER_BIT);
       glLoadIdentity();
@@ -121,23 +122,23 @@ struct
 
   fun handle_event (SDL.E_KeyDown {sym = k}) s = keyDown k s
     | handle_event SDL.E_Quit s = NONE
-    | handle_event (SDL.E_MouseDown {button, x, y}) w =
+    | handle_event (SDL.E_MouseDown {button, x, y}) (s as GS {world, ...}) =
       let
-          val () = Box2d.create_body w
+          val () = Box2d.create_body world
                                      (BDDMath.vec2 (window_to_world (x,y)))
                                      (Ball ())
-      in SOME w end
+      in SOME s end
     | handle_event _ s = SOME s
 
 
-  fun tick world =
+  fun tick (s as GS {world, level}) =
       let
       in
           oapp BDD.Body.get_next
                domothbrain
                (BDD.World.get_body_list world);
           dophysics world; 
-          SOME world
+          SOME s
       end
 end
 
