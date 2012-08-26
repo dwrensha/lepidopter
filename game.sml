@@ -58,7 +58,7 @@ struct
                                             goal = ref (BDDMath.vec2 (15.2, 15.1)),
                                             dna = DNA.random () })
 
-          val () = Box2d.create_body world (BDDMath.vec2 (15.0, 15.0)) (Block ())
+          val () = Box2d.create_body world (BDDMath.vec2 (10.0, 1.0)) (Block ())
           val () = BDD.World.set_begin_contact (world, Box2d.contact_listener)
 
           fun random_vec () = Box2d.random_vec left right bottom top
@@ -70,6 +70,7 @@ struct
                                                          goal = ref (random_vec()),
                                                          dna = DNA.random () })
                             )
+          val () = Box2d.create_body world (BDDMath.vec2 (15.0, 14.7)) (Lightbulb ())
       in world end
 
 
@@ -107,7 +108,7 @@ struct
                          fn ii => 
                             let val ang = 2.0 * Math.pi * (Real.fromInt ii / Real.fromInt n)
                                 val tf = BDDMath.mat22angle ang 
-                            in BDDMath.vec2xy (pos :+: (tf +*: rad)) end
+                            in BDDMath.vec2xy (pos :+: p :+: (tf +*: rad)) end
                            )
               val glpoints = List.map (fn (x, y) => (x, y, 0.0)) points
               val Fix {color, health} = BDD.Fixture.get_data f

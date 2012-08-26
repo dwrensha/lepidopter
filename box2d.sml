@@ -113,10 +113,46 @@ struct
 
           val fixture = BDD.Body.create_fixture_default
                             (body,
-                             BDDShape.Circle {radius = 0.5, p = zero},
-(*                              BDDShape.Polygon
-                                 (BDDPolygon.box (0.3, 0.3)), *)
-                             Fix {color = RGB (1.0, 0.0, 1.0), health = ref 1.0},
+                             BDDShape.Circle {radius = 0.45, p = zero},
+                             Fix {color = RGB (1.0, 0.2, 0.2), health = ref 1.0},
+                             10.0)
+          val () = BDD.Fixture.set_restitution (fixture, 1.0)
+          val () = BDD.Fixture.set_friction (fixture, 0.4)
+      in () end
+    | create_body world (p : BDDMath.vec2) (data as Lightbulb ()) : unit = 
+      let 
+          val body = BDD.World.create_body
+                         (world,
+                          {typ = BDD.Body.Static,
+                           position = p,
+                           angle = 0.0,
+                           linear_velocity = BDDMath.vec2 (0.0, 0.5),
+                           angular_velocity = 0.0,
+                           linear_damping = 0.0,
+                           angular_damping = 0.0,
+                           allow_sleep = false,
+                           awake = true,
+                           fixed_rotation = false,
+                           bullet = true,
+                           active = true,
+                           data = data,
+                           inertia_scale = 1.0
+                         })
+
+          val color = RGB (1.0, 1.0, 0.4)
+          val fixture = BDD.Body.create_fixture_default
+                            (body,
+                             BDDShape.Circle {radius = 0.4,
+                                              p = BDDMath.vec2 (0.0, 0.4)},
+                             Fix {color = color, health = ref 1.0},
+                             10.0)
+          val () = BDD.Fixture.set_restitution (fixture, 1.0)
+          val () = BDD.Fixture.set_friction (fixture, 0.4)
+          val fixture = BDD.Body.create_fixture_default
+                            (body,
+                             BDDShape.Polygon
+                                 (BDDPolygon.box (0.2, 0.2)),
+                             Fix {color = color, health = ref 1.0},
                              10.0)
           val () = BDD.Fixture.set_restitution (fixture, 1.0)
           val () = BDD.Fixture.set_friction (fixture, 0.4)

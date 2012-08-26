@@ -10,6 +10,7 @@ datatype body_data = Moth of {health : real ref,
                               }
                    | Block of unit
                    | Ball of unit
+                   | Lightbulb of unit
 
 datatype fixture_data = Fix of {health: real ref,
                                 color : spec}
