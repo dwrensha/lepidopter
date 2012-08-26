@@ -1,5 +1,5 @@
 OUTPUT_APP=LepidopterAttack
-ICON=media/graphics/ExplatTheRobot.icns
+ICON=media/graphics/bulb.icns
 OUTPUT_EXE=game.exe
 MAKE=make
 
