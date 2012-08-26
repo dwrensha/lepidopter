@@ -28,8 +28,10 @@ struct
            (Real.fromInt (height - y)  / Real.fromInt height) * (top - bottom) + bottom)
       end
 
-  val initstate =
-      Box2d.setup_level 1 constants (PERS {score = 0})
+  val initstate = 
+      (MothBrain.construct_aabbs constants;
+       Box2d.setup_level 1 constants (PERS {score = 0})
+      )
 
   fun initscreen screen = Opengl.init constants
 

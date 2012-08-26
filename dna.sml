@@ -7,7 +7,7 @@ type moth_dna = real array
 
 type index = int
 
-val SIZE = 8
+val SIZE = 12
 
 val WINGSPAN = 0
 val HEIGHT = 1
@@ -17,24 +17,38 @@ val RED = 4
 val GREEN = 5
 val BLUE = 6
 val PLANPROB = 7
+val MOTHWEIGHT = 8
+val LIGHTBULBWEIGHT = 9
+val BLOCKWEIGHT = 10
+val BALLWEIGHT = 11
 
 val dna_mins = Array.fromList [0.1,
                                0.1,
                                4.0,
-                               2.0,
+                               1.0, (* force *)
                                0.3,
                                0.3,
                                0.3,
+                               0.0,
+
+                               0.0,
+                               0.0,
+                               0.0,
                                0.0]
 
-val dna_maxs = Array.fromList [0.6,
-                               0.5,
+val dna_maxs = Array.fromList [0.5,
+                               0.4,
                                12.0,
-                               7.0,
+                               5.0,   (* force *)
                                1.0,
                                1.0,
                                1.0,
-                               0.1] 
+                               0.001,
+                              
+                               1.0,
+                               1000.0, (* lightbulbweight *)
+                               100.0,  (* blockweight *)
+                               100.0]  (* ballweight *)
 
 fun get dna idx =
     let val mn = Array.sub (dna_mins, idx)
@@ -46,8 +60,5 @@ fun get dna idx =
 
 fun random () = 
     Array.tabulate (SIZE, fn _ => random_real())
-
-val moth1 = Array.fromList [0.2, 0.3, 0.5, 1.0, 0.9, 0.8, 0.1, 1.0]
-val moth2 = Array.fromList [0.9, 0.4, 0.4, 0.9, 0.0, 0.9, 0.99, 0.01]
 
 end

@@ -13,12 +13,13 @@ val RED : index
 val GREEN : index
 val BLUE : index
 val PLANPROB : index
+val MOTHWEIGHT : index
+val LIGHTBULBWEIGHT : index
+val BLOCKWEIGHT : index
+val BALLWEIGHT : index
 
 val get : moth_dna -> index -> real
 
 val random : unit -> moth_dna
-
-val moth1 : moth_dna
-val moth2 : moth_dna
 
 end

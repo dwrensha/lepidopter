@@ -164,12 +164,19 @@ struct
 
 
   fun random_vec_in left right bottom top =
-      let open MersenneTwister
+      let 
           val x = random_real()
           val y = random_real()
       in BDDMath.vec2
              (x * (right - left) + left,
               y * (top - bottom) + bottom)
+      end
+
+  fun random_vec_in_aabb {lowerbound, upperbound} =
+      let 
+          val (left, bottom) = BDDMath.vec2xy lowerbound
+          val (right, top) = BDDMath.vec2xy upperbound
+      in random_vec_in left right bottom top
       end
 
   fun populate world [] = ()
@@ -186,11 +193,11 @@ struct
                      [(BDDMath.vec2 (10.0, 10.0),
                        Moth {health = ref 1.0,
                              goal = ref (BDDMath.vec2 (15.0, 15.0)),
-                             dna = DNA.moth1 }),
+                             dna = DNA.random () }),
                       (BDDMath.vec2 (10.0, 17.0),
                        Moth {health = ref 1.0,
                              goal = ref (BDDMath.vec2 (15.0, 15.0)),
-                             dna = DNA.moth2 }),
+                             dna = DNA.random () }),
                       (BDDMath.vec2 (1.0, 7.0),
                        Moth {health = ref 1.0,
                              goal = ref (BDDMath.vec2 (15.0, 15.0)),
@@ -203,10 +210,12 @@ struct
                  val rbs = List.tabulate
                            (50,
                             fn i =>
-                               (random_vec (),
-                                Moth {health = ref 1.0,
-                                       goal = ref (random_vec()),
-                                       dna = DNA.random () }))
+                               let val v = random_vec ()
+                               in (v,
+                                   Moth {health = ref 1.0,
+                                         goal = ref v,
+                                         dna = DNA.random () })
+                               end)
              in bs @ rbs end
            | _ => nil
       end
