@@ -23,13 +23,13 @@ fun DrawPrim (_,[]) = glFlush ()
     end
 
 
-fun init width height = (
+fun init width height left right bottom top = (
    glClearColor 0.0 0.0 0.0 1.0;
    glClearDepth 1.0;
    glViewport 0 0 width height;
    glMatrixMode(GL_PROJECTION);
    glLoadIdentity();
-   glOrtho 0.0 20.0 0.0 20.0 5.0 ~5.0;
+   glOrtho left right bottom top 5.0 ~5.0;
    glMatrixMode(GL_MODELVIEW);
    glEnable(GL_TEXTURE_2D);
    glLoadIdentity();

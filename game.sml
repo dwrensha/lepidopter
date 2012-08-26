@@ -12,6 +12,18 @@ struct
   (* Constant parameters *)
   val width = 500
   val height = 500
+
+  (* world coordinates of window boundary *)
+  val left = 0.0
+  val right = 20.0
+  val bottom = 0.0
+  val top = 20.0
+
+
+  fun window_to_world (x, y) = 
+      ((Real.fromInt x  / Real.fromInt width) * (right - left) + left,
+       (Real.fromInt (height - y)  / Real.fromInt height) * (top - bottom) + bottom)
+
   val use_gl = true
   
   val gravity = BDDMath.vec2 (0.0, ~1.0) 
@@ -49,7 +61,7 @@ struct
           val () = Box2d.create_body world (BDDMath.vec2 (15.0, 15.0)) (Block ())
           val () = BDD.World.set_begin_contact (world, Box2d.contact_listener)
 
-          fun random_vec () = Box2d.random_vec 0.0 20.0 0.0 20.0
+          fun random_vec () = Box2d.random_vec left right bottom top
           val () = Util.for 1 50
                             (fn i =>
                                 Box2d.create_body world
@@ -61,7 +73,7 @@ struct
       in world end
 
 
-  fun initscreen screen = Opengl.init width height
+  fun initscreen screen = Opengl.init width height left right bottom top
 
   val ticks_per_second = 60.0
 
@@ -133,6 +145,12 @@ struct
 
   fun handle_event (SDL.E_KeyDown {sym = k}) s = keyDown k s
     | handle_event SDL.E_Quit s = NONE
+    | handle_event (SDL.E_MouseDown {button, x, y}) w =
+      let
+          val () = Box2d.create_body w
+                                     (BDDMath.vec2 (window_to_world (x,y)))
+                                     (Block ())
+      in SOME w end
     | handle_event _ s = SOME s
 
 
