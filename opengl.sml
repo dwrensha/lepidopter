@@ -8,8 +8,8 @@ fun DrawPrim (_,[]) = glFlush ()
   | DrawPrim (obj,l) =
     let
         fun draw_vertices [] = ()
-          | draw_vertices ((x,y,z)::t) =
-                    ((glVertex3d x y z); draw_vertices t)
+          | draw_vertices ((x,y)::t) =
+                    ((glVertex3d x y 0.0); draw_vertices t)
           
         fun draw_all [] = ()
           | draw_all ((RGB(r,g,b), v)::t) =

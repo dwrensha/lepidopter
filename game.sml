@@ -58,10 +58,9 @@ struct
                                 val tf = BDDMath.mat22angle ang 
                             in BDDMath.vec2xy (pos :+: (tf0 +*: p) :+: (tf +*: rad)) end
                            )
-              val glpoints = List.map (fn (x, y) => (x, y, 0.0)) points
               val Fix {color, health} = BDD.Fixture.get_data f
           in Opengl.DrawPrim (GL_TRIANGLE_FAN,
-                              [(color, glpoints)])
+                              [(color, points)])
           end
         | BDDShape.Polygon p => 
           let val n = BDDPolygon.get_vertex_count p
@@ -72,8 +71,7 @@ struct
               val points = List.tabulate
                                (n, fn ii => BDDPolygon.get_vertex (p, ii))
               val tf = BDDMath.mat22angle theta
-              val glpoints0 = List.map (fn pt => BDDMath.vec2xy (pos :+: (tf +*: pt))) points
-              val glpoints = List.map (fn (x, y) => (x, y, 0.0)) glpoints0
+              val glpoints = List.map (fn pt => BDDMath.vec2xy (pos :+: (tf +*: pt))) points
               val Fix {color, health = ref h} = BDD.Fixture.get_data f
           in Opengl.DrawPrim (prim,
                               [(scalecolor color h, glpoints)]);
@@ -92,12 +90,35 @@ struct
              BDDOps.oapp BDD.Fixture.get_next (drawfixture screen pos theta) fl
       end
 
-  fun render screen (GS {world, ...}) =
+  fun draw_status_bar killed need_to_kill =
+      let val startx = 1.0
+          val fullx = 19.0
+          val fraction0 = (Real.fromInt killed) / (Real.fromInt need_to_kill)
+          val fraction = if fraction0 > 1.0 then 1.0 else fraction0
+          val endx = fraction * (fullx - startx) + startx
+          val bot = 1.4
+          val top = 1.6
+          val green = RGB (0.0, 1.0, 0.0)
+          val gray = RGB (0.7, 0.7, 0.7)
+      in
+      Opengl.DrawPrim (GL_QUADS,
+                       [(green,
+                        [(startx, top), (startx, bot),
+                         (endx, bot), (endx, top)])]);
+      Opengl.DrawPrim (GL_QUADS,
+                       [(gray,
+                        [(endx, top), (endx, bot),
+                         (fullx, bot), (fullx, top)])])
+      end
+
+  fun render screen (GS {world, killed, need_to_kill, ... }) =
   let in
       glClear(GL_COLOR_BUFFER_BIT + GL_DEPTH_BUFFER_BIT);
       glLoadIdentity();
    
-      BDDOps.oapp BDD.Body.get_next (drawbody screen) (BDD.World.get_body_list world);
+      oapp BDD.Body.get_next (drawbody screen) (BDD.World.get_body_list world);
+
+      draw_status_bar killed need_to_kill;
       SDL.glflip();
       ()
 
@@ -145,13 +166,33 @@ struct
     | handle_event _ s = SOME s
 
 
-
-  fun tick (s as GS {world, level, ...}) =
-      let
+  fun count_dead_moths world =
+      let val counter = ref 0
+          fun countbody (Moth {health,...} ) =
+              if (!health > 0.0) then ()
+              else counter := ((!counter) + 1)
+            | countbody _ = ()
+          val () = oapp BDD.Body.get_next
+                        (countbody o BDD.Body.get_data)
+                        (BDD.World.get_body_list world)
       in
-          MothBrain.dobrains world;
-          dophysics world; 
-          SOME s
+          !counter
+      end
+
+
+  fun tick (s as GS {world, level, killed, need_to_kill, constants, persistent}) =
+      let 
+          val () = MothBrain.dobrains world
+          val () = dophysics world
+          val killed1 = count_dead_moths world
+          val gs = if killed1 > need_to_kill
+                   then Box2d.setup_level (level + 1) constants persistent
+                   else GS {world = world, level = level,
+                            killed = killed1,
+                            need_to_kill = need_to_kill,
+                            constants = constants,
+                            persistent = persistent}
+      in SOME gs
       end
 end
 

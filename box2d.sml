@@ -327,7 +327,7 @@ struct
                    Moth _ => 0.002
                  | Lightbulb _ => 0.03
                  | Block _ => 0.01
-                 | Ball _ => 0.02
+                 | Ball _ => 0.05
               )
       in
           health := ((!health) - damage);
@@ -348,10 +348,17 @@ struct
   fun setup_level level (constants as CONST {gravity, ...}) pers = 
       let 
           val ld = get_level_data constants level
+          val num_moths = List.length
+                          (List.filter (fn (p, a, b) =>
+                                           case b of Moth _ => true
+                                                   | _ => false)
+                                       ld)
+          val need_to_kill = (num_moths * 3) div 4
           val new_world = BDD.World.world (gravity, true)
           val () = populate new_world ld
           val () = BDD.World.set_begin_contact (new_world, contact_listener)
-      in GS {world = new_world, level = level, constants = constants, persistent = pers}
+      in GS {world = new_world, level = level, constants = constants,
+             killed = 0, need_to_kill = need_to_kill, persistent = pers}
       end
 
 

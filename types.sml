@@ -35,6 +35,8 @@ datatype persistent_state = PERS of {score : int}
 
 datatype game_state = GS of {world : BDD.world,
                              level : int,
+                             killed : int,
+                             need_to_kill : int,
                              constants : constants,
                              persistent : persistent_state
                             }
