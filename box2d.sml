@@ -163,7 +163,7 @@ struct
   val mt =
       MersenneTwister.initstring (Time.toString (Time.now ()))
 
-  fun random_vec left right bottom top =
+  fun random_vec_in left right bottom top =
       let open MersenneTwister
           val x = (Real.fromInt (random_nat mt 1000)) / 1000.0
           val y = (Real.fromInt (random_nat mt 1000)) / 1000.0
@@ -171,6 +171,47 @@ struct
              (x * (right - left) + left,
               y * (top - bottom) + bottom)
       end
+
+  fun populate world [] = ()
+    | populate world ((pos, body_data)::bodies) =
+      let val () = create_body world pos body_data
+      in populate world bodies end
+
+  fun get_level_data world_bounds n = 
+      let val (left, right, bottom, top) = world_bounds
+          fun random_vec () = random_vec_in left right bottom top
+      in case n 
+          of 1 =>
+             let val bs =
+                     [(BDDMath.vec2 (10.0, 10.0),
+                       Moth {health = ref 1.0,
+                             goal = ref (BDDMath.vec2 (15.0, 15.0)),
+                             dna = DNA.moth1 }),
+                      (BDDMath.vec2 (10.0, 17.0),
+                       Moth {health = ref 1.0,
+                             goal = ref (BDDMath.vec2 (15.0, 15.0)),
+                             dna = DNA.moth2 }),
+                      (BDDMath.vec2 (1.0, 7.0),
+                       Moth {health = ref 1.0,
+                             goal = ref (BDDMath.vec2 (15.0, 15.0)),
+                             dna = DNA.random () }),
+                      (BDDMath.vec2 (10.0, 1.0), Block ()),
+                      (BDDMath.vec2 (15.0, 14.7), Lightbulb ())
+                     ]
+
+                 val rbs = List.tabulate
+                           (50,
+                            fn i =>
+                               (random_vec (),
+                                Moth {health = ref 1.0,
+                                       goal = ref (random_vec()),
+                                       dna = DNA.random () }))
+             in bs @ rbs end
+           | _ => nil
+      end
+
+
+
 
   fun take_hit (Moth {health, ...}) = 
       (health := ((!health) - 0.03);

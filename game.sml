@@ -29,48 +29,9 @@ struct
   val gravity = BDDMath.vec2 (0.0, ~4.0) 
   val initstate =
       let val world = BDD.World.world (gravity, true)
-          val () = Box2d.create_body world
-                                     (BDDMath.vec2 (10.0, 10.0))
-                                     (Moth {health = ref 1.0,
-                                            goal = ref (BDDMath.vec2 (15.0, 15.0)),
-                                            dna = DNA.moth1 })
-          val () = Box2d.create_body world
-                                     (BDDMath.vec2 (10.0, 17.0))
-                                     (Moth {health = ref 1.0,
-                                            goal = ref (BDDMath.vec2 (15.0, 15.0)),
-                                            dna = DNA.moth2 })
-
-          val () = Box2d.create_body world
-                                     (BDDMath.vec2 (1.0, 7.0))
-                                     (Moth {health = ref 1.0,
-                                            goal = ref (BDDMath.vec2 (15.0, 15.0)),
-                                            dna = DNA.random () })
-
-          val () = Box2d.create_body world
-                                     (BDDMath.vec2 (7.0, 4.0))
-                                     (Moth {health = ref 1.0,
-                                            goal = ref (BDDMath.vec2 (15.4, 15.3)),
-                                            dna = DNA.random () })
-
-          val () = Box2d.create_body world
-                                     (BDDMath.vec2 (11.0, 9.0))
-                                     (Moth {health = ref 1.0,
-                                            goal = ref (BDDMath.vec2 (15.2, 15.1)),
-                                            dna = DNA.random () })
-
-          val () = Box2d.create_body world (BDDMath.vec2 (10.0, 1.0)) (Block ())
+          val () = Box2d.populate world
+                                  (Box2d.get_level_data (left,right,bottom,top) 1)
           val () = BDD.World.set_begin_contact (world, Box2d.contact_listener)
-
-          fun random_vec () = Box2d.random_vec left right bottom top
-          val () = Util.for 1 50
-                            (fn i =>
-                                Box2d.create_body world
-                                                  (random_vec ())
-                                                  (Moth {health = ref 1.0,
-                                                         goal = ref (random_vec()),
-                                                         dna = DNA.random () })
-                            )
-          val () = Box2d.create_body world (BDDMath.vec2 (15.0, 14.7)) (Lightbulb ())
       in world end
 
 
