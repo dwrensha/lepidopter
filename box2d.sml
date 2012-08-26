@@ -228,13 +228,13 @@ struct
       in () end
 
 
-  fun setup_level level (constants as CONST {gravity, ...}) = 
+  fun setup_level level (constants as CONST {gravity, ...}) pers = 
       let 
           val ld = get_level_data constants level
           val new_world = BDD.World.world (gravity, true)
           val () = populate new_world ld
           val () = BDD.World.set_begin_contact (new_world, contact_listener)
-      in GS {world = new_world, level = level, constants = constants}
+      in GS {world = new_world, level = level, constants = constants, persistent = pers}
       end
 
 

@@ -10,6 +10,8 @@ struct
 
   type screen = SDL.surface
 
+  val use_gl = true
+  val ticks_per_second = 60.0
   val width = 500
   val height = 500
 
@@ -25,14 +27,10 @@ struct
            (Real.fromInt (height - y)  / Real.fromInt height) * (top - bottom) + bottom)
       end
 
-  val use_gl = true
-  
   val initstate =
-      Box2d.setup_level 1 constants
+      Box2d.setup_level 1 constants (PERS {score = 0})
 
   fun initscreen screen = Opengl.init constants
-
-  val ticks_per_second = 60.0
 
   fun domothbrain b = 
       case BDD.Body.get_data b of

@@ -31,9 +31,13 @@ datatype constants = CONST of {width : int,
                                top : real,
                                gravity : BDDMath.vec2}
 
+datatype persistent_state = PERS of {score : int}
+
 datatype game_state = GS of {world : BDD.world,
                              level : int,
-                             constants : constants}
+                             constants : constants,
+                             persistent : persistent_state
+                            }
 
 
 end
