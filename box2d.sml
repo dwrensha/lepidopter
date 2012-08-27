@@ -143,7 +143,7 @@ struct
                            inertia_scale = 1.0
                          })
 
-          val color = RGB (1.0, 1.0, 0.4)
+          val color = RGB (1.0, 1.0, 0.6)
           val fixture = BDD.Body.create_fixture_default
                             (body,
                              BDDShape.Circle {radius = 0.4,
@@ -320,7 +320,54 @@ struct
                                end)
              in bs @ rbs end
 
-           | _ => nil
+           | _ =>
+             let                 
+                 val rtot = 0.70710678
+                 val bs = floor @ ceiling @ leftwall @ rightwall @ 
+                     [
+                      (BDDMath.vec2 (5.0, 10.0), Math.pi / 2.0, Block ()),
+                      (BDDMath.vec2 (5.0, 12.0), Math.pi / 2.0, Block ()),
+                      (BDDMath.vec2 (6.0, 13.0), 0.0, Block ()),
+                      (BDDMath.vec2 (6.0, 11.0), 0.0, Block ()),
+                      (BDDMath.vec2 (6.0, 9.0), 0.0, Block ()),
+
+                      (BDDMath.vec2 (8.5, 10.0), Math.pi / 2.0, Block ()),
+                      (BDDMath.vec2 (8.5, 12.0), Math.pi / 2.0, Block ()),
+                      (BDDMath.vec2 (10.0, 11.0), ~Math.pi / 3.0, Block ()),
+                      (BDDMath.vec2 (11.5, 10.0), Math.pi / 2.0, Block ()),
+                      (BDDMath.vec2 (11.5, 12.0), Math.pi / 2.0, Block ()),
+
+
+                      (BDDMath.vec2 (15.0, 12.3), ~ Math.pi / 8.0, Block ()),
+                      (BDDMath.vec2 (15.0, 9.7),  Math.pi / 8.0, Block ()),
+                      (BDDMath.vec2 (14.0, 10.0), Math.pi / 2.0, Block ()),
+                      (BDDMath.vec2 (14.0, 12.0), Math.pi / 2.0, Block ()),
+
+                      (BDDMath.vec2 (16.0, 11.0), Math.pi / 2.0, Block ()),
+
+
+
+
+                      (BDDMath.vec2 (19.3, 10.0), Math.pi / 2.0, Lightbulb ()),
+                      (BDDMath.vec2 (0.7, 10.0), ~ Math.pi / 2.0, Lightbulb ())
+
+
+                     ]
+
+
+                 val rbs = List.tabulate
+                           (125,
+                            fn i =>
+                               let val v = random_vec ()
+                                   val go = random_vec_in ~1.0 1.0 ~1.0 1.0
+                               in (v,
+                                   0.0,
+                                   Moth {health = ref 1.0,
+                                         goal = ref (v :+: go),
+                                         dna = random_dna () })
+                               end)
+             in bs @ rbs end
+
       end
 
 
