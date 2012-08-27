@@ -30,7 +30,7 @@ struct
 
   val initstate = 
       (MothBrain.construct_aabbs constants;
-       Box2d.setup_level 1 constants (PERS {score = 0})
+       Box2d.setup_level 1 constants (PERS {score = 0.0}) []
       )
 
   fun initscreen screen = Opengl.init constants
@@ -41,8 +41,9 @@ struct
       in () end
 
   fun scalecolor (RGB (r, g, b)) health = 
-      let val s = 0.8 * health + 0.2
-      in RGB (s * r, s * g, s * b) end
+      if health > 0.0
+      then RGB (health * r, health * g, health * b)
+      else RGB (0.0, 1.0, 0.0)
 
   fun drawfixture screen pos theta f =
       case BDD.Fixture.shape f of
@@ -96,8 +97,8 @@ struct
           val fraction0 = (Real.fromInt killed) / (Real.fromInt need_to_kill)
           val fraction = if fraction0 > 1.0 then 1.0 else fraction0
           val endx = fraction * (fullx - startx) + startx
-          val bot = 1.4
-          val top = 1.6
+          val bot = 1.3
+          val top = 1.7
           val green = RGB (0.0, 1.0, 0.0)
           val gray = RGB (0.7, 0.7, 0.7)
       in
@@ -111,7 +112,28 @@ struct
                          (fullx, bot), (fullx, top)])])
       end
 
-  fun render screen (GS {world, killed, need_to_kill, ... }) =
+  fun draw_score_bar score =
+      let val startx = 1.0
+          val fullx = 19.0
+          val fraction = if score > 1.0 then 1.0 else score
+          val endx = fraction * (fullx - startx) + startx
+          val bot = 0.3
+          val top = 0.7
+          val purple = Box2d.purple
+          val gray = RGB (0.7, 0.7, 0.7)
+      in
+      Opengl.DrawPrim (GL_QUADS,
+                       [(purple,
+                        [(startx, top), (startx, bot),
+                         (endx, bot), (endx, top)])]);
+      Opengl.DrawPrim (GL_QUADS,
+                       [(gray,
+                        [(endx, top), (endx, bot),
+                         (fullx, bot), (fullx, top)])])
+      end
+
+  fun render screen (GS {world, killed, need_to_kill,
+                         persistent = PERS {score},... }) =
   let in
       glClear(GL_COLOR_BUFFER_BIT + GL_DEPTH_BUFFER_BIT);
       glLoadIdentity();
@@ -119,6 +141,7 @@ struct
       oapp BDD.Body.get_next (drawbody screen) (BDD.World.get_body_list world);
 
       draw_status_bar killed need_to_kill;
+      draw_score_bar score;
       SDL.glflip();
       ()
 
@@ -136,7 +159,7 @@ struct
                     if !cheating
                     then (case Int.fromString mbe_num of
                               SOME lev =>
-                                SOME (Box2d.setup_level lev constants persistent)
+                                SOME (Box2d.setup_level lev constants persistent [])
                             | NONE => SOME s
                          )
                     else SOME s
@@ -153,16 +176,32 @@ struct
        SOME s
       )
 
+  val score_inc = 0.05
 
   fun handle_event (SDL.E_KeyDown {sym = k}) s = keyDown k s
     | handle_event SDL.E_Quit s = NONE
-    | handle_event (SDL.E_MouseDown {button, x, y}) (s as GS {world, ...}) =
-      let
-          val () = Box2d.create_body world
-                                     (BDDMath.vec2 (window_to_world (x,y)))
-                                     0.0
-                                     (Ball ())
-      in SOME s end
+    | handle_event (SDL.E_MouseDown {button, x, y})
+                   (s as GS {world, 
+                             level,
+                             killed,
+                             need_to_kill,
+                             constants,
+                             persistent = PERS {score}
+                   }) =
+      if score > score_inc
+      then let val new_score = if (score - score_inc < 0.0) then 0.0 else score - score_inc
+              val () = Box2d.create_body world
+                                         (BDDMath.vec2 (window_to_world (x,y)))
+                                         0.0
+                                         (Ball ())
+          in SOME (GS {world = world,  
+                       level = level,
+                       killed = killed,
+                       need_to_kill = need_to_kill,
+                       constants = constants,
+                       persistent = PERS {score = new_score}})
+           end 
+      else SOME s
     | handle_event _ s = SOME s
 
 
@@ -179,19 +218,39 @@ struct
           !counter
       end
 
+  fun gather_live_dna world =
+      let val lst = ref []
+          fun gatherbody (Moth {health, dna, ...} ) =
+              if (!health > 0.0)
+              then lst := (dna :: (!lst))
+              else ()
+            | gatherbody _ = ()
+          val () = oapp BDD.Body.get_next
+                        (gatherbody o BDD.Body.get_data)
+                        (BDD.World.get_body_list world)
+      in
+          !lst
+      end
 
-  fun tick (s as GS {world, level, killed, need_to_kill, constants, persistent}) =
+
+  fun tick (s as GS {world, level, killed, need_to_kill, constants,
+                     persistent = PERS {score}}) =
       let 
           val () = MothBrain.dobrains world
           val () = dophysics world
+          val new_score0 = score + 0.0005
+          val new_score = if new_score0 > 1.0 then 1.0 else new_score0
           val killed1 = count_dead_moths world
-          val gs = if killed1 > need_to_kill
-                   then Box2d.setup_level (level + 1) constants persistent
+          val gs = if killed1 >= need_to_kill
+                   then Box2d.setup_level (level + 1)
+                                          constants
+                                          (PERS {score = score})
+                                          (gather_live_dna world)
                    else GS {world = world, level = level,
                             killed = killed1,
                             need_to_kill = need_to_kill,
                             constants = constants,
-                            persistent = persistent}
+                            persistent = PERS {score = new_score}}
       in SOME gs
       end
 end

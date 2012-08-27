@@ -7,6 +7,9 @@ struct
   infix 7 *: *% +*: +*+ #*% @*:
 
   val zero = BDDMath.vec2_zero
+  val purple = RGB (0.65, 0.2, 1.0)
+
+
 
   fun create_body world (p : BDDMath.vec2) theta (data as Moth {dna, health, ...}) : unit = 
       let 
@@ -115,7 +118,7 @@ struct
           val fixture = BDD.Body.create_fixture_default
                             (body,
                              BDDShape.Circle {radius = 0.45, p = zero},
-                             Fix {color = RGB (0.65, 0.2, 1.0), health = ref 1.0},
+                             Fix {color = purple, health = ref 1.0},
                              10.0)
           val () = BDD.Fixture.set_restitution (fixture, 1.0)
           val () = BDD.Fixture.set_friction (fixture, 0.4)
@@ -184,8 +187,10 @@ struct
       let val () = create_body world pos theta body_data
       in populate world bodies end
 
-  fun get_level_data constants n = 
-      let val CONST {left, right, bottom, top, ...} = constants
+  fun get_level_data constants n dna_list = 
+      let
+          fun random_dna () = DNA.random (Array.fromList dna_list)
+          val CONST {left, right, bottom, top, ...} = constants
           fun random_vec () = random_vec_in (left + 1.0) (right - 1.0)
                                             (bottom + 2.0) (top - 1.0)
           val floor = 
@@ -263,7 +268,7 @@ struct
                                    0.0,
                                    Moth {health = ref 1.0,
                                          goal = ref (v :+: go),
-                                         dna = DNA.random () })
+                                         dna = random_dna () })
                                end)
              in bs @ rbs end
            | 2 =>
@@ -282,7 +287,7 @@ struct
                                    0.0,
                                    Moth {health = ref 1.0,
                                          goal = ref (v :+: go),
-                                         dna = DNA.random () })
+                                         dna = random_dna () })
                                end)
              in bs @ rbs end
 
@@ -311,7 +316,7 @@ struct
                                    0.0,
                                    Moth {health = ref 1.0,
                                          goal = ref (v :+: go),
-                                         dna = DNA.random () })
+                                         dna = random_dna () })
                                end)
              in bs @ rbs end
 
@@ -345,9 +350,9 @@ struct
       in () end
 
 
-  fun setup_level level (constants as CONST {gravity, ...}) pers = 
+  fun setup_level level (constants as CONST {gravity, ...}) pers dna_list = 
       let 
-          val ld = get_level_data constants level
+          val ld = get_level_data constants level dna_list
           val num_moths = List.length
                           (List.filter (fn (p, a, b) =>
                                            case b of Moth _ => true

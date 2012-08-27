@@ -20,6 +20,6 @@ val BALLWEIGHT : index
 
 val get : moth_dna -> index -> real
 
-val random : unit -> moth_dna
+val random : (moth_dna Array.array) -> moth_dna
 
 end

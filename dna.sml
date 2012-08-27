@@ -58,7 +58,31 @@ fun get dna idx =
         v * (mx - mn) + mn
     end
 
-fun random () = 
-    Array.tabulate (SIZE, fn _ => random_real())
+fun fudge x =
+    let val r = 0.4 * (random_real ())  -  0.2
+        val x1 = x + r
+        val x2 = if x1 > 1.0
+                 then 1.0
+                 else if x1 < 0.0
+                 then 0.0
+                 else x1
+    in x2 end
+
+
+fun randomize dna =
+    let 
+        val dna1 = Array.tabulate
+                       (SIZE,
+                        (fn ii => fudge (Array.sub (dna, ii))))
+    in dna1 end
+
+fun random dna_array = 
+    let val n = Array.length dna_array
+        val ii = random_nat (n + 1)
+    in
+        if ii = n
+        then Array.tabulate (SIZE, fn _ => random_real ())
+        else randomize (Array.sub (dna_array, ii))
+    end
 
 end
